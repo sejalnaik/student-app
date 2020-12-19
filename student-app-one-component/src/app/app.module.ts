@@ -1,9 +1,11 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from "@angular/common/http";
 import {  RouterModule } from '@angular/router';
 import {  ReactiveFormsModule } from "@angular/forms";
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgxSpinnerModule } from "ngx-spinner";
 
 import { AppComponent } from './app.component';
 import { StudentCrudComponent } from './components/student-crud/student-crud.component';
@@ -24,8 +26,11 @@ import { RoutesClass } from "./classes/route-class";
     FormsModule,
     HttpClientModule,
     RouterModule.forRoot(RoutesClass.routes),
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    NgbModule,
+    NgxSpinnerModule
   ],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   providers: [
     StudentService
   ],

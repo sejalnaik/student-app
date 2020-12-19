@@ -18,8 +18,8 @@ export class StudentService {
   
   addStudent(student:Student):Observable<Student>{
     let studentJSON:string = JSON.stringify(student);
-    let httpHeaders = new HttpHeaders({'Content-Type' : 'application/json'});
-    return this.httpClient.post<Student>(this.baseUrl + "/", studentJSON, {'headers':httpHeaders});
+    let httpHeaders = new HttpHeaders().set('Content-Type', 'application/json');
+    return this.httpClient.post<Student>(this.baseUrl, studentJSON, {'headers':httpHeaders, responseType:'text' as 'json'});
   }
 
   getStudent(id:string):Observable<Student>{
@@ -29,10 +29,10 @@ export class StudentService {
   updateStudent(student:Student):Observable<Student>{
     let studentJSON:string = JSON.stringify(student);
     let httpHeaders = new HttpHeaders({'Content-Type' : 'application/json'});
-    return this.httpClient.put<Student>(this.baseUrl + "/" + student.id, studentJSON, {'headers':httpHeaders});
+    return this.httpClient.put<Student>(this.baseUrl + "/" + student.id, studentJSON, {'headers':httpHeaders, responseType:'text' as 'json'});
   }
   deleteStudent(id:string){
-    return this.httpClient.delete<Student>(this.baseUrl + "/" + id);
+    return this.httpClient.delete<Student>(this.baseUrl + "/" + id, {responseType:'text' as 'json'});
   }
 }
 

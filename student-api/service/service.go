@@ -29,10 +29,10 @@ func (s *StudentService) GetAllStudents(students *[]model.Student) error {
 	}
 }
 
-func (s *StudentService) GetStudent(student *model.Student) error {
+func (s *StudentService) GetStudent(student *model.Student, studentID string) error {
 	uow := repository.NewUnitOfWork(s.db, true)
 	queryProcessors := []repository.QueryProcessor{}
-	queryProcessors = append(queryProcessors, repository.Where(student.ID))
+	queryProcessors = append(queryProcessors, repository.Where(studentID))
 	if err := s.repository.Get(uow, student, queryProcessors); err != nil {
 		return err
 	} else {
@@ -52,9 +52,12 @@ func (s *StudentService) AddStudent(student *model.Student) error {
 	}
 }
 
-func (s *StudentService) UpdateStudent(student *model.Student) error {
+func (s *StudentService) UpdateStudent(student *model.Student, studentID string) error {
 	uow := repository.NewUnitOfWork(s.db, true)
-	if err := s.repository.Update(uow, student); err != nil {
+	queryProcessors := []repository.QueryProcessor{}
+	queryProcessors = append(queryProcessors, repository.Model(student))
+	queryProcessors = append(queryProcessors, repository.Where(studentID))
+	if err := s.repository.Update(uow, student, queryProcessors); err != nil {
 		uow.Complete()
 		return err
 	} else {

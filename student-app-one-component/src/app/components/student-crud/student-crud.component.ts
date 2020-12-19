@@ -3,6 +3,8 @@ import { Validators, FormBuilder, FormControl } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Student } from 'src/app/classes/student';
 import { StudentService } from 'src/app/services/student.service';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgxSpinnerService } from "ngx-spinner";
 
 @Component({
   selector: 'app-student-crud',
@@ -17,11 +19,15 @@ export class StudentCrudComponent implements OnInit {
   addForm:any;
   studentAPI:Student;
   addOrUpdateAction:string;
+  modalRef: any;
+  loadingMessage: string = "Getting students";
   
   constructor(
     private studentService:StudentService, 
     private router:Router, 
-    private formBuilder:FormBuilder
+    private formBuilder:FormBuilder,
+    private modalService: NgbModal,
+    private spinner: NgxSpinnerService,
     ) { 
       this.formBuild();
   }
@@ -38,12 +44,14 @@ export class StudentCrudComponent implements OnInit {
   }
   
   ngOnInit(): void {
+    this.spinner.show();
     this.getStudents();
    }
 
   getStudents():void{
     this.studentService.getStudents().subscribe((data)=>{
       this.students = data;
+      this.spinner.hide();
     },
     (err) => console.log('HTTP Error', err)
     );
@@ -61,6 +69,16 @@ export class StudentCrudComponent implements OnInit {
     }
   }
 
+  onAddButtonClick(studentFormModal):void{
+    this.setAddAction()
+    this.openStudentFormModal(studentFormModal)
+  }
+
+  onUpdateButtonClick(id:string, studentFormModal):void{
+    this.prepopulate(id)
+    this.openStudentFormModal(studentFormModal)
+  }
+
   addStudent():void{
     this.studentAPI = {id:null, 
                       rollNo:this.addForm.get('rollNo').value, 
@@ -70,15 +88,19 @@ export class StudentCrudComponent implements OnInit {
                       isMale:this.addForm.get('gender').value, 
                       dob:this.addForm.get('dob').value};
     this.studentService.addStudent(this.studentAPI).subscribe(data=>{
+      this.spinner.show()
+      this.modalRef.close();
       this.getStudents();
-      alert("Student added");
+      alert("Student added with id :" + data);
     },
-    (err) => console.log('HTTP Error', err)
-    );
+      (err) => {
+        console.log('HTTP Error', err);
+        this.spinner.hide() 
+      });
     }
 
     dobChange():void{
-      let dobDate:Date = new Date(this.addForm.controls['date'].value);
+      let dobDate:Date = new Date(this.addForm.controls['dob'].value);
       let diff = (new Date().getTime() - dobDate.getTime());
       let ageTotal = Math.trunc(diff/ (1000 * 3600 * 24 *365));
       this.addForm.patchValue({
@@ -92,24 +114,29 @@ export class StudentCrudComponent implements OnInit {
     }
 
     prepopulate(id:string):void{
+      this.spinner.show()
       this.formBuild();
       this.addOrUpdateAction = "update";
       this.id = id;
       this.studentService.getStudent(id).subscribe((data)=>{
         this.addForm.patchValue({
-          name: data[0].name,
-          rollNo: data[0].rollNo,
-          age: data[0].age,
-          dob: data[0].dob,
-          email: data[0].email,
-          gender: data[0].isMale
+          name: data.name,
+          rollNo: data.rollNo,
+          age: data.age,
+          dob: data.dob,
+          email: data.email,
+          gender: data.isMale
         });
+        this.spinner.hide()
       },
-      (err) => console.log('HTTP Error', err)
-      );
+      (err) => {
+        console.log('HTTP Error', err);
+        this.spinner.hide()
+      });
     }
 
     updateStudent():void{
+      this.spinner.show()
       this.studentAPI = {
         id:this.id, 
         rollNo:this.addForm.get('rollNo').value, 
@@ -121,21 +148,32 @@ export class StudentCrudComponent implements OnInit {
       };
 
       this.studentService.updateStudent(this.studentAPI).subscribe((data)=>{
+        this.modalRef.close();
         this.getStudents();
-        alert("Student updated"); 
+        alert("Student updated with id :" + data); 
       },
-      (err) => console.log('HTTP Error', err)
-      );
+      (err) => {
+        console.log('HTTP Error', err);
+        this.spinner.hide()
+      });
     }
 
     deleteStudent(id:string):void{
       if(confirm("Are you sure to delete?")) {
         this.studentService.deleteStudent(id).subscribe((data)=>{
+          this.spinner.show()
           this.getStudents();
-          alert("Student deleted");
+          alert("Student deleted with id :" + data);
         },
         (err) => console.log('HTTP Error', err)
         );
       }
     }
+
+    openStudentFormModal(studentFormModal: any):void {
+      this.modalRef = this.modalService.open(studentFormModal, { ariaLabelledBy: 'modal-basic-title', backdrop: 'static', size: 'xl' });
+      /*this.modalRef.result.then((result) => {
+      }, (reason) => {
+      });*/
+}
 }
