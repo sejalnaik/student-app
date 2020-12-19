@@ -1,0 +1,33 @@
+th, tr{
+    text-align: center;
+}
+
+th, td{
+    color: purple;
+}
+button{
+    background-color: purple;    
+    color: ivory;
+}
+h1{
+    color: purple;
+}
+div{
+    text-align: center;
+}
+
+.addStudentBtn{
+    margin-top: 20px;
+    margin-left: 10%;
+}
+
+input[type="radio"]{
+    margin: 0 0 0 10px;
+}
+
+
+.required{
+    color: red;
+    position: relative;
+    top: 6px;
+}

@@ -1,0 +1,142 @@
+<button class="btn btn-primary" [class] = "'addStudentBtn'" id="formModalBtn" #formModalBtn data-toggle="modal" data-target="#formModal" data-backdrop="static" data-keyboard="false" (click) = "setAddAction()">ADD STUDENT</button>
+<div>
+    <h1>Student List</h1>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>ROLLNO</th>
+                <th>NAME</th>
+                <th>DATE</th>
+                <th>AGE</th>
+                <th>EMAIL</th>
+                <th>GENDER</th>
+                <th>UPDATE</th>
+                <th>DELETE</th>
+            </tr>
+        </thead>
+        <tr *ngFor = "let student of students">
+            <td>{{student.id}}</td>
+            <td>{{student.rollNo}}</td>
+            <td>{{student.name}}</td>
+            <td>{{student.date}}</td>
+            <td>{{student.age}}</td>
+            <td>{{student.email}}</td>
+            <td>
+                <span *ngIf = "student.isMale;else no">Male</span>
+                <ng-template #no>
+                    <span>Female</span>
+                </ng-template>
+            </td>
+            <td><button (click) = "prepopulate(student.id)" #formModalBtn data-toggle="modal" data-target="#formModal" data-backdrop="static" data-keyboard="false">UPDATE</button></td>
+            <td><button (click) = "deleteStudent(student.id)">DELETE</button></td>
+        </tr>
+    </table>
+</div>
+
+
+
+<div class="modal" id="formModal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+  
+            <div class="modal-header">
+                <h4 class="modal-title">{{addOrUpdateAction | uppercase}} FORM</h4>
+                <button type="button" class="close" data-dismiss="modal" >&times;</button>
+            </div>
+     
+            <div class="modal-body">
+                
+                <form class="form-horizontal" [formGroup]="addForm">
+
+                    <div class="form-group row">
+                        <label class="control-label col-sm-2" for="rollNoId">Roll No.</label>
+                        <div class="col-sm-6">
+                            <input type="number" class="form-control" id="rollNoId" formControlName="rollNo"> 
+                        </div>
+                        <div class="col-sm-4">
+                            <span *ngIf = "addForm.get('rollNo').invalid && (addForm.get('rollNo').dirty || addForm.get('rollNo').touched)" [class] = "'required'">RollNo is required</span>
+                        </div>
+                    </div>
+                
+                    <div class="form-group row">
+                        <label class="control-label col-sm-2" for="nameId" >Name</label>
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control" id="nameId" formControlName="name" required>
+                        </div>
+                        <div class="col-sm-4">
+                            <span *ngIf = "addForm.get('name').invalid && (addForm.get('name').dirty || addForm.get('name').touched)" [class] = "'required'">
+                                <span *ngIf="addForm.get('name').errors.required">Name is required</span>
+                                <span *ngIf="addForm.get('name').errors.pattern">Name can only contain alphabets</span>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="control-label col-sm-2" for="dateId" >Date</label>
+                        <div class="col-sm-6">
+                            <input type="date" class="form-control" id="dateId" formControlName="date" (change) = "dobChange()" required>
+                        </div>
+                        <div class="col-sm-4">
+                            <span *ngIf = "addForm.get('date').invalid && (addForm.get('date').dirty || addForm.get('date').touched)" [class] = "'required'">Date is required</span>
+                        </div>
+                    </div>
+                
+                    <div class="form-group row">
+                        <label class="control-label col-sm-2" for="ageId">Age</label>
+                        <div class="col-sm-6">
+                            <input type="number" class="form-control" id="ageId" formControlName="age" required>
+                        </div>
+                        <div class="col-sm-4">
+                            <span *ngIf = "addForm.get('age').invalid && (addForm.get('age').dirty || addForm.get('age').touched)" [class] = "'required'">Age is required</span>
+                        </div>
+                    </div>
+                
+                    <div class="form-group row">
+                        <label class="control-label col-sm-2" for="emailId" >Email</label>
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control" id="emailId" formControlName="email" required>
+                        </div>
+                        <div class="col-sm-4">
+                            <span *ngIf = "addForm.get('email').invalid && (addForm.get('email').dirty || addForm.get('email').touched)" [class] = "'required'">
+                                <span *ngIf="addForm.get('email').errors.required">Email is required</span>
+                                <span *ngIf="addForm.get('email').errors.email">The email address must contain at least the '@' and the '.' character</span>
+                            </span>
+                        </div>
+                    </div>
+                
+                    <fieldset class="form-group">
+                        <div class="row">
+                            <label class="control-label col-sm-2" >Gender</label>
+                            <div class="col-sm-3" [style.margin-top] = "'5px'" [style.text-align] = "'center'">
+                                <span >
+                                    <label>Male</label>
+                                    <input type="radio" name="gender" [value] = true formControlName="gender" required>
+                                </span>
+                            </div>
+                            <div class="col-sm-3" [style.margin-top] = "'5px'" [style.text-align] = "'left'">
+                                <span>
+                                    <label>Female</label>
+                                    <input type="radio" name="gender" [value] = false formControlName="gender" required>
+                                </span>
+                            </div>
+                            
+                            <div class="col-sm-4">
+                                <div *ngIf="addOrUpdateAction == 'add'">
+                                    <span *ngIf = "addForm.get('gender').invalid && addForm.get('gender').dirty" [class] = "'required'">Gender is required</span>
+                                </div>
+                            </div>
+                        
+                        </div>
+                    </fieldset>
+                
+                    <div class="form-group">
+                        <button [disabled]="!addForm.valid || !addForm.dirty" id = "submitButtonId" class="btn btn-primary" type="submit" (click) = "validate()"  data-dismiss="modal">SUBMIT</button>
+                    </div>
+                    
+                  </form>
+            </div>
+  
+        </div>
+    </div>
+</div>
