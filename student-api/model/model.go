@@ -14,7 +14,7 @@ type Student struct {
 	Age    int    `json:"age"`
 	Email  string `json:"email"`
 	IsMale bool   `json:"isMale"`
-	DOB    string `gorm:"type:date" json:"date"`
+	DOB    string `gorm:"type:date" json:"dob"`
 }
 
 type Base struct {

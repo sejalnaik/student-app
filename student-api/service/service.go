@@ -4,6 +4,7 @@ import (
 	"github.com/jinzhu/gorm"
 	"github.com/sejalnaik/student-app/model"
 	"github.com/sejalnaik/student-app/repository"
+	"github.com/sejalnaik/student-app/utility"
 )
 
 type StudentService struct {
@@ -20,18 +21,22 @@ func NewStudentService(repository repository.Repository, db *gorm.DB) *StudentSe
 
 func (s *StudentService) GetAllStudents(students *[]model.Student) error {
 	uow := repository.NewUnitOfWork(s.db, true)
-	if err := s.repository.Get(uow, students); err != nil {
+	if err := s.repository.Get(uow, students, nil); err != nil {
 		return err
 	} else {
+		utility.ConvertStudentsTimeToDate(students)
 		return nil
 	}
 }
 
 func (s *StudentService) GetStudent(student *model.Student) error {
 	uow := repository.NewUnitOfWork(s.db, true)
-	if err := s.repository.GetFirst(uow, student); err != nil {
+	queryProcessors := []repository.QueryProcessor{}
+	queryProcessors = append(queryProcessors, repository.Where(student.ID))
+	if err := s.repository.Get(uow, student, queryProcessors); err != nil {
 		return err
 	} else {
+		utility.ConvertStudentTimeToDate(student)
 		return nil
 	}
 }
@@ -58,9 +63,11 @@ func (s *StudentService) UpdateStudent(student *model.Student) error {
 	}
 }
 
-func (s *StudentService) DeleteStudent(student *model.Student) error {
+func (s *StudentService) DeleteStudent(student *model.Student, studentID string) error {
 	uow := repository.NewUnitOfWork(s.db, true)
-	if err := s.repository.Delete(uow, student); err != nil {
+	queryProcessors := []repository.QueryProcessor{}
+	queryProcessors = append(queryProcessors, repository.Where(studentID))
+	if err := s.repository.Delete(uow, student, queryProcessors); err != nil {
 		uow.Complete()
 		return err
 	} else {

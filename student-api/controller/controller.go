@@ -40,6 +40,8 @@ func (c *studentController) GetAllStudents(w http.ResponseWriter, r *http.Reques
 		w.Write([]byte("Students not found"))
 	}
 
+	fmt.Println("Indide controlleer studnets", students)
+
 	//converting struct to json type and sending back json
 	if studentsJSON, err := json.Marshal(students); err != nil {
 		fmt.Println(err)
@@ -146,19 +148,13 @@ func (c *studentController) DeleteStudent(w http.ResponseWriter, r *http.Request
 
 	//getting id from query param
 	params := mux.Vars(r)
-	IDinUUID, err := uuid.FromString(params["studentID"])
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	//giving id to bucket
-	student.ID = IDinUUID
+	studentID := (params["studentID"])
 
 	//calling service method to delete student and giving back id as string
-	if err := c.studentService.DeleteStudent(student); err != nil {
+	if err := c.studentService.DeleteStudent(student, studentID); err != nil {
 		fmt.Println(err)
 		w.Write([]byte("Could not delete student"))
 	} else {
-		w.Write([]byte(student.ID.String()))
+		w.Write([]byte(studentID))
 	}
 }

@@ -3,7 +3,7 @@ export interface Student {
     name:string,
     rollNo:number,
     age:number,
-    date:string,
+    dob:string,
     email:string,
     isMale:boolean
 }
