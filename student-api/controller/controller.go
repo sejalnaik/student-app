@@ -85,8 +85,22 @@ func (c *studentController) AddStudent(w http.ResponseWriter, r *http.Request) {
 	//convert json to struct type
 	er := json.Unmarshal(responseBody, student)
 	if er != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, er.Error(), http.StatusBadRequest)
 		return
+	}
+
+	//check student validation
+	if validErrs := student.Validate(); len(validErrs) > 0 {
+		err := map[string]interface{}{"validationError": validErrs}
+		w.WriteHeader(http.StatusBadRequest)
+		if errJSON, er := json.Marshal(err); er != nil {
+			fmt.Println(er)
+			http.Error(w, er.Error(), http.StatusBadRequest)
+			return
+		} else {
+			w.Write(errJSON)
+			return
+		}
 	}
 
 	//calling service method to add student and giving back id as string
@@ -112,10 +126,26 @@ func (c *studentController) UpdateStudent(w http.ResponseWriter, r *http.Request
 		fmt.Println(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
+
+	//convert json to struct type
 	er := json.Unmarshal(responseBody, student)
 	if er != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
+	}
+
+	//check student validation
+	if validErrs := student.Validate(); len(validErrs) > 0 {
+		err := map[string]interface{}{"validationError": validErrs}
+		w.WriteHeader(http.StatusBadRequest)
+		if errJSON, er := json.Marshal(err); er != nil {
+			fmt.Println(er)
+			http.Error(w, er.Error(), http.StatusBadRequest)
+			return
+		} else {
+			w.Write(errJSON)
+			return
+		}
 	}
 
 	//calling service method to update student and giving back id as string
