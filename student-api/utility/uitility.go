@@ -5,15 +5,25 @@ import (
 )
 
 func ConvertStudentTimeToDate(student *model.Student) {
-	student.DOB = student.DOB[:10]
-	student.DOBTIME = student.DOBTIME[:19]
+	tempDOB := *student.DOB
+	tempDOB = tempDOB[:10]
+	student.DOB = &tempDOB
+
+	tempDOBTIME := *student.DOBTIME
+	tempDOBTIME = tempDOBTIME[:19]
+	student.DOBTIME = &tempDOBTIME
 }
 
 func ConvertStudentsTimeToDate(students *[]model.Student) {
 	tempStudents := *students
 	for i := 0; i < len(tempStudents); i++ {
-		tempStudents[i].DOB = (tempStudents[i].DOB[:10])
-		tempStudents[i].DOBTIME = (tempStudents[i].DOBTIME[:19])
+		tempDOB := *tempStudents[i].DOB
+		tempDOB = tempDOB[:10]
+		tempStudents[i].DOB = &tempDOB
+
+		tempDOBTIME := *tempStudents[i].DOBTIME
+		tempDOBTIME = tempDOBTIME[:19]
+		tempStudents[i].DOBTIME = &tempDOBTIME
 	}
 }
 
