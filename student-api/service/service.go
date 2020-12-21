@@ -1,6 +1,9 @@
 package service
 
 import (
+	"encoding/json"
+	"errors"
+
 	"github.com/jinzhu/gorm"
 	"github.com/sejalnaik/student-app/model"
 	"github.com/sejalnaik/student-app/repository"
@@ -43,6 +46,14 @@ func (s *StudentService) GetStudent(student *model.Student, studentID string) er
 
 func (s *StudentService) AddStudent(student *model.Student) error {
 	uow := repository.NewUnitOfWork(s.db, true)
+
+	//check student validation
+	if validErrs := student.Validate(); len(validErrs) > 0 {
+		err := map[string]interface{}{"validationError": validErrs}
+		errorJsonString, _ := json.Marshal(err)
+		return errors.New(string(errorJsonString))
+	}
+
 	if err := s.repository.Add(uow, student); err != nil {
 		uow.Complete()
 		return err
@@ -54,9 +65,18 @@ func (s *StudentService) AddStudent(student *model.Student) error {
 
 func (s *StudentService) UpdateStudent(student *model.Student, studentID string) error {
 	uow := repository.NewUnitOfWork(s.db, true)
+
+	//check student validation
+	if validErrs := student.Validate(); len(validErrs) > 0 {
+		err := map[string]interface{}{"validationError": validErrs}
+		errorJsonString, _ := json.Marshal(err)
+		return errors.New(string(errorJsonString))
+	}
+
 	queryProcessors := []repository.QueryProcessor{}
 	queryProcessors = append(queryProcessors, repository.Model(student))
 	queryProcessors = append(queryProcessors, repository.Where(studentID))
+
 	if err := s.repository.Update(uow, student, queryProcessors); err != nil {
 		uow.Complete()
 		return err

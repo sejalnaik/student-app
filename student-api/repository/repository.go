@@ -55,7 +55,7 @@ func (r *gormRepository) Add(uow *UnitOfWork, entity interface{}) error {
 	db := uow.DB
 	defer func() {
 		if r := recover(); r != nil {
-			db.Rollback()
+			uow.Complete()
 		}
 	}()
 	if err := db.Error; err != nil {
@@ -71,7 +71,7 @@ func (r *gormRepository) Update(uow *UnitOfWork, entity interface{}, queryProces
 	db := uow.DB
 	defer func() {
 		if r := recover(); r != nil {
-			db.Rollback()
+			uow.Complete()
 		}
 	}()
 	if err := db.Error; err != nil {
@@ -96,7 +96,7 @@ func (r *gormRepository) Delete(uow *UnitOfWork, entity interface{}, queryProces
 	db := uow.DB
 	defer func() {
 		if r := recover(); r != nil {
-			db.Rollback()
+			uow.Complete()
 		}
 	}()
 	if err := db.Error; err != nil {

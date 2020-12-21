@@ -58,30 +58,24 @@ func (s *Student) Validate() url.Values {
 	regexpName := regexp.MustCompile("^[A-Za-z]+$")
 	errs := url.Values{}
 
-	if s.RollNo == 0 {
-
-		errs.Add("rollNo", "Roll No is required")
-	}
+	//name is required
 	if s.Name == "" {
 		errs.Add("name", "Name is required")
 	}
+
+	//name must contain alphabets only
 	if !regexpName.MatchString(s.Name) {
 		errs.Add("name", "Name should only have alphabets")
 	}
+
+	//email is required
 	if s.Email == "" {
 		errs.Add("email", "Email is required")
 	}
+
+	//email must be valid
 	if !regexpEmail.MatchString(s.Email) {
 		errs.Add("email", "Email field should be a valid email address")
-	}
-	if s.Age == 0 {
-		errs.Add("age", "Age is required")
-	}
-	if s.DOB == "" {
-		errs.Add("dob", "DOB No is required")
-	}
-	if s.DOBTIME == "" {
-		errs.Add("dobTime", "DOB/Time No is required")
 	}
 	return errs
 }

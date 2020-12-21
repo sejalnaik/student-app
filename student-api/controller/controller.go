@@ -2,8 +2,8 @@ package controller
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -35,15 +35,18 @@ func (c *studentController) GetAllStudents(w http.ResponseWriter, r *http.Reques
 
 	//calling service method to get all students
 	if err := c.studentService.GetAllStudents(&students); err != nil {
-		fmt.Println(err)
+		log.Println("Get students unsuccessful")
+		log.Println(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 
 	//converting struct to json type and sending back json
 	if studentsJSON, err := json.Marshal(students); err != nil {
-		fmt.Println(err)
+		log.Println("JSON marshall unsuccessful")
+		log.Println(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	} else {
+		log.Println("Get students successful")
 		w.Write(studentsJSON)
 	}
 }
@@ -58,15 +61,18 @@ func (c *studentController) GetStudent(w http.ResponseWriter, r *http.Request) {
 
 	//calling service method to get student
 	if err := c.studentService.GetStudent(&student, studentID); err != nil {
-		fmt.Println(err)
+		log.Println("Get student unsuccessful")
+		log.Println(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 
 	//converting struct to json type and sending back json
 	if studentsJSON, err := json.Marshal(student); err != nil {
-		fmt.Println(err)
+		log.Println("JSON marshall unsuccessful")
+		log.Println(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	} else {
+		log.Println("Get student successful")
 		w.Write(studentsJSON)
 	}
 }
@@ -78,36 +84,27 @@ func (c *studentController) AddStudent(w http.ResponseWriter, r *http.Request) {
 	//read student data from response body
 	responseBody, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		fmt.Println(err)
+		log.Println("Could not read response body")
+		log.Println(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 
 	//convert json to struct type
 	er := json.Unmarshal(responseBody, student)
 	if er != nil {
+		log.Println("Json unmarshall unsuccessful")
+		log.Println(er)
 		http.Error(w, er.Error(), http.StatusBadRequest)
 		return
 	}
 
-	//check student validation
-	if validErrs := student.Validate(); len(validErrs) > 0 {
-		err := map[string]interface{}{"validationError": validErrs}
-		w.WriteHeader(http.StatusBadRequest)
-		if errJSON, er := json.Marshal(err); er != nil {
-			fmt.Println(er)
-			http.Error(w, er.Error(), http.StatusBadRequest)
-			return
-		} else {
-			w.Write(errJSON)
-			return
-		}
-	}
-
 	//calling service method to add student and giving back id as string
 	if err := c.studentService.AddStudent(student); err != nil {
-		fmt.Println(err)
+		log.Println("Add student unsuccessful")
+		log.Println(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	} else {
+		log.Println("Add student successful")
 		w.Write([]byte(student.ID.String()))
 	}
 }
@@ -123,36 +120,27 @@ func (c *studentController) UpdateStudent(w http.ResponseWriter, r *http.Request
 	//read student data from response body
 	responseBody, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		fmt.Println(err)
+		log.Println("Could not read response body")
+		log.Println(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 
 	//convert json to struct type
 	er := json.Unmarshal(responseBody, student)
 	if er != nil {
+		log.Println("Json unmarshall unsuccessful")
+		log.Println(er)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	//check student validation
-	if validErrs := student.Validate(); len(validErrs) > 0 {
-		err := map[string]interface{}{"validationError": validErrs}
-		w.WriteHeader(http.StatusBadRequest)
-		if errJSON, er := json.Marshal(err); er != nil {
-			fmt.Println(er)
-			http.Error(w, er.Error(), http.StatusBadRequest)
-			return
-		} else {
-			w.Write(errJSON)
-			return
-		}
-	}
-
 	//calling service method to update student and giving back id as string
 	if err := c.studentService.UpdateStudent(student, studentID); err != nil {
-		fmt.Println(err)
+		log.Println("Update student unsuccessful")
+		log.Println(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	} else {
+		log.Println("Update student successful")
 		w.Write([]byte(student.ID.String()))
 	}
 }
@@ -167,9 +155,11 @@ func (c *studentController) DeleteStudent(w http.ResponseWriter, r *http.Request
 
 	//calling service method to delete student and giving back id as string
 	if err := c.studentService.DeleteStudent(student, studentID); err != nil {
-		fmt.Println(err)
+		log.Println("Delete student unsuccessful")
+		log.Println(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	} else {
+		log.Println("Delete student successful")
 		w.Write([]byte(studentID))
 	}
 }
