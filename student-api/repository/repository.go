@@ -22,14 +22,7 @@ type QueryProcessor func(db *gorm.DB, out interface{}) (*gorm.DB, error)
 
 func Where(value interface{}) QueryProcessor {
 	return func(db *gorm.DB, out interface{}) (*gorm.DB, error) {
-		db = db.Where("id = ?", value)
-		return db, nil
-	}
-}
-
-func Model(out interface{}) QueryProcessor {
-	return func(db *gorm.DB, out interface{}) (*gorm.DB, error) {
-		db = db.Model(out)
+		db = db.Model(out).Where("id = ?", value)
 		return db, nil
 	}
 }

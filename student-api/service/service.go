@@ -74,7 +74,6 @@ func (s *StudentService) UpdateStudent(student *model.Student, studentID string)
 	}
 
 	queryProcessors := []repository.QueryProcessor{}
-	queryProcessors = append(queryProcessors, repository.Model(student))
 	queryProcessors = append(queryProcessors, repository.Where(studentID))
 
 	if err := s.repository.Update(uow, student, queryProcessors); err != nil {

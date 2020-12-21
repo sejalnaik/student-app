@@ -15,11 +15,11 @@ import (
 
 type Student struct {
 	Base
-	RollNo  int    `json:"rollNo"`
+	RollNo  *int   `json:"rollNo"`
 	Name    string `json:"name"`
 	Age     int    `json:"age"`
 	Email   string `json:"email"`
-	IsMale  bool   `json:"isMale"`
+	IsMale  *bool  `json:"isMale"`
 	DOB     string `gorm:"type:date" json:"dob"`
 	DOBTIME string `gorm:"type:datetime" json:"dobTime"`
 }

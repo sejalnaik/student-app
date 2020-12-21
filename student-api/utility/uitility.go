@@ -16,3 +16,9 @@ func ConvertStudentsTimeToDate(students *[]model.Student) {
 		tempStudents[i].DOBTIME = (tempStudents[i].DOBTIME[:19])
 	}
 }
+
+/*func IfZeroRollNOConvertToNull(student *model.Student) {
+	if student.RollNo == 0 {
+		student.RollNo = null
+	}
+}*/
