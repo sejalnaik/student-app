@@ -4,6 +4,7 @@ export interface Student {
     rollNo:number,
     age:number,
     dob:string,
+    dobTime : string
     email:string,
     isMale:boolean
 }

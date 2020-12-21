@@ -38,6 +38,7 @@ export class StudentCrudComponent implements OnInit {
       name: ['', [Validators.required,  Validators.pattern("^[a-zA-Z_ ]+$")]],
       age: ['', Validators.required],
       dob: ['', Validators.required],
+      dobTime: ['', Validators.required],
       gender: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]]
     });
@@ -86,7 +87,8 @@ export class StudentCrudComponent implements OnInit {
                       age:this.addForm.get('age').value, 
                       email:this.addForm.get('email').value, 
                       isMale:this.addForm.get('gender').value, 
-                      dob:this.addForm.get('dob').value};
+                      dob:this.addForm.get('dob').value,
+                      dobTime:this.addForm.get('dobTime').value};
     this.studentService.addStudent(this.studentAPI).subscribe(data=>{
       this.spinner.show()
       this.modalRef.close();
@@ -124,6 +126,7 @@ export class StudentCrudComponent implements OnInit {
           rollNo: data.rollNo,
           age: data.age,
           dob: data.dob,
+          dobTime: data.dobTime,
           email: data.email,
           gender: data.isMale
         });
@@ -144,7 +147,8 @@ export class StudentCrudComponent implements OnInit {
         age:this.addForm.get('age').value, 
         email:this.addForm.get('email').value, 
         isMale:this.addForm.get('gender').value, 
-        dob:this.addForm.get('dob').value
+        dob:this.addForm.get('dob').value,
+        dobTime:this.addForm.get('dobTime').value
       };
 
       this.studentService.updateStudent(this.studentAPI).subscribe((data)=>{
