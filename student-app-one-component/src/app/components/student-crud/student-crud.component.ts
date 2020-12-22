@@ -34,13 +34,13 @@ export class StudentCrudComponent implements OnInit {
 
   formBuild(){
     this.addForm = this.formBuilder.group({
-      rollNo: ['', Validators.required],
+      rollNo: ['', [Validators.required, Validators.min(0)]],
       name: ['', [Validators.required,  Validators.pattern("^[a-zA-Z_ ]+$")]],
-      age: ['', Validators.required],
+      age: ['', [Validators.required, Validators.min(0)]],
       dob: ['', Validators.required],
       dobTime: ['', Validators.required],
       gender: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]]
+      email: ['', [Validators.required, Validators.pattern("^[a-zA-Z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$")]]
     });
   }
   
@@ -52,10 +52,12 @@ export class StudentCrudComponent implements OnInit {
   getStudents():void{
     this.studentService.getStudents().subscribe((data)=>{
       this.students = data;
-      this.spinner.hide();
+      //this.spinner.hide();
     },
-    (err) => console.log('HTTP Error', err)
-    );
+    (err) => {
+      console.log('HTTP Error', err);
+      this.spinner.hide();
+    });
   }
 
   validate():void{

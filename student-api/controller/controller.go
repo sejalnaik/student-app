@@ -22,10 +22,15 @@ func NewStudentController(studentService *service.StudentService) *studentContro
 }
 
 func (c *studentController) CreateRoutes(r *mux.Router) {
+	//get students
 	r.HandleFunc("/students", c.GetAllStudents).Methods("GET")
+	//get one student
 	r.HandleFunc("/students/{studentID}", c.GetStudent).Methods("GET")
+	//add student
 	r.HandleFunc("/students", c.AddStudent).Methods("POST")
+	//update student
 	r.HandleFunc("/students/{studentID}", c.UpdateStudent).Methods("PUT")
+	//delete student
 	r.HandleFunc("/students/{studentID}", c.DeleteStudent).Methods("DELETE")
 }
 

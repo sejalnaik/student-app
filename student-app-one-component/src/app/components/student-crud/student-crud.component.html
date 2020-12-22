@@ -56,7 +56,10 @@
                     <input type="number" class="form-control" id="rollNoId" formControlName="rollNo"> 
                 </div>
                 <div class="col-sm-4">
-                    <span *ngIf = "addForm.get('rollNo').invalid && (addForm.get('rollNo').dirty || addForm.get('rollNo').touched)" [class] = "'required'">RollNo is required</span>
+                    <span *ngIf = "addForm.get('rollNo').invalid && (addForm.get('rollNo').dirty || addForm.get('rollNo').touched)" [class] = "'required'">
+                        <span *ngIf="addForm.get('rollNo').errors.required">RollNo is required</span>
+                        <span *ngIf="addForm.get('rollNo').errors.min">RollNo cannot be less than zero</span>
+                    </span>
                 </div>
             </div>
         
@@ -99,7 +102,10 @@
                     <input type="number" class="form-control" id="ageId" formControlName="age" required>
                 </div>
                 <div class="col-sm-4">
-                    <span *ngIf = "addForm.get('age').invalid && (addForm.get('age').dirty || addForm.get('age').touched)" [class] = "'required'">Age is required</span>
+                    <span *ngIf = "addForm.get('age').invalid && (addForm.get('age').dirty || addForm.get('age').touched)" [class] = "'required'">
+                        <span *ngIf="addForm.get('age').errors.required">Age is required</span>
+                        <span *ngIf="addForm.get('age').errors.min">Age cannot be less than zero</span>
+                    </span>
                 </div>
             </div>
         
@@ -111,7 +117,7 @@
                 <div class="col-sm-4">
                     <span *ngIf = "addForm.get('email').invalid && (addForm.get('email').dirty || addForm.get('email').touched)" [class] = "'required'">
                         <span *ngIf="addForm.get('email').errors.required">Email is required</span>
-                        <span *ngIf="addForm.get('email').errors.email">The email address must contain at least the '@' and the '.' character</span>
+                        <span *ngIf="addForm.get('email').errors.pattern">The email address must contain at least the '@' and the '.' character</span>
                     </span>
                 </div>
             </div>

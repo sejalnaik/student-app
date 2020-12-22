@@ -23,37 +23,49 @@ func NewStudentService(repository repository.Repository, db *gorm.DB) *StudentSe
 }
 
 func (s *StudentService) GetAllStudents(students *[]model.Student) error {
+	//create unit of work
 	uow := repository.NewUnitOfWork(s.db, true)
+
+	//call get repository method to get students
 	if err := s.repository.Get(uow, students, nil); err != nil {
 		return err
 	} else {
+		//to trim dob and dobtime
 		utility.ConvertStudentsTimeToDate(students)
 		return nil
 	}
 }
 
 func (s *StudentService) GetStudent(student *model.Student, studentID string) error {
+	//create unit of work
 	uow := repository.NewUnitOfWork(s.db, true)
+
+	//give query processor for where
 	queryProcessors := []repository.QueryProcessor{}
 	queryProcessors = append(queryProcessors, repository.Where(studentID))
+
+	//call get repository method to get one student
 	if err := s.repository.Get(uow, student, queryProcessors); err != nil {
 		return err
 	} else {
+		//to trim dob and dobtime
 		utility.ConvertStudentTimeToDate(student)
 		return nil
 	}
 }
 
 func (s *StudentService) AddStudent(student *model.Student) error {
+	//create unit of work
 	uow := repository.NewUnitOfWork(s.db, true)
 
 	//check student validation
 	if validErrs := student.Validate(); len(validErrs) > 0 {
 		err := map[string]interface{}{"validationError": validErrs}
-		errorJsonString, _ := json.Marshal(err)
-		return errors.New(string(errorJsonString))
+		errorJSONString, _ := json.Marshal(err)
+		return errors.New(string(errorJSONString))
 	}
 
+	//call add repository method to add one student
 	if err := s.repository.Add(uow, student); err != nil {
 		uow.Complete()
 		return err
@@ -64,6 +76,7 @@ func (s *StudentService) AddStudent(student *model.Student) error {
 }
 
 func (s *StudentService) UpdateStudent(student *model.Student, studentID string) error {
+	//create unit of work
 	uow := repository.NewUnitOfWork(s.db, true)
 
 	//check student validation
@@ -73,9 +86,11 @@ func (s *StudentService) UpdateStudent(student *model.Student, studentID string)
 		return errors.New(string(errorJsonString))
 	}
 
+	//give query processor for where
 	queryProcessors := []repository.QueryProcessor{}
 	queryProcessors = append(queryProcessors, repository.Where(studentID))
 
+	//call update repository method to update one student
 	if err := s.repository.Update(uow, student, queryProcessors); err != nil {
 		uow.Complete()
 		return err
@@ -86,9 +101,14 @@ func (s *StudentService) UpdateStudent(student *model.Student, studentID string)
 }
 
 func (s *StudentService) DeleteStudent(student *model.Student, studentID string) error {
+	//create unit of work
 	uow := repository.NewUnitOfWork(s.db, true)
+
+	//give query processor for where
 	queryProcessors := []repository.QueryProcessor{}
 	queryProcessors = append(queryProcessors, repository.Where(studentID))
+
+	//call delete repository method to delete one student
 	if err := s.repository.Delete(uow, student, queryProcessors); err != nil {
 		uow.Complete()
 		return err

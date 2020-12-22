@@ -54,7 +54,7 @@ func (model *Base) BeforeCreate(scope *gorm.Scope) {
 }
 
 func (s *Student) Validate() url.Values {
-	regexpEmail := regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
+	regexpEmail := regexp.MustCompile("^[a-zA-Z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$")
 	regexpName := regexp.MustCompile("^[A-Za-z]+$")
 	errs := url.Values{}
 
