@@ -10,18 +10,16 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-//const regexpEmail = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
-//const regexpName = regexp.MustCompile("^[A-Za-z]+$")
-
 type Student struct {
 	Base
-	RollNo  *int    `json:"rollNo"`
-	Name    string  `json:"name"`
-	Age     *int    `json:"age"`
-	Email   string  `json:"email"`
-	IsMale  *bool   `json:"isMale"`
-	DOB     *string `gorm:"type:date" json:"dob"`
-	DOBTIME *string `gorm:"type:datetime" json:"dobTime"`
+	RollNo      *int    `json:"rollNo"`
+	Name        string  `json:"name"`
+	Age         *int    `json:"age"`
+	Email       string  `json:"email"`
+	IsMale      *bool   `json:"isMale"`
+	DOB         *string `gorm:"type:date" json:"dob"`
+	DOBTIME     *string `gorm:"type:datetime" json:"dobTime"`
+	PhoneNumber *string `json:"phoneNumber"`
 }
 
 type Base struct {

@@ -7,8 +7,8 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/sejalnaik/student-app/model"
-	"github.com/sejalnaik/student-app/service"
+	"github.com/sejalnaik/student-app/student/model"
+	"github.com/sejalnaik/student-app/student/service"
 )
 
 type studentController struct {
@@ -47,7 +47,7 @@ func (c *studentController) GetAllStudents(w http.ResponseWriter, r *http.Reques
 
 	//converting struct to json type and sending back json
 	if studentsJSON, err := json.Marshal(students); err != nil {
-		log.Println("JSON marshall unsuccessful")
+		log.Println("Get students : JSON marshall unsuccessful")
 		log.Println(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	} else {
@@ -73,7 +73,7 @@ func (c *studentController) GetStudent(w http.ResponseWriter, r *http.Request) {
 
 	//converting struct to json type and sending back json
 	if studentsJSON, err := json.Marshal(student); err != nil {
-		log.Println("JSON marshall unsuccessful")
+		log.Println("Get student : JSON marshall unsuccessful")
 		log.Println(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	} else {
@@ -89,7 +89,7 @@ func (c *studentController) AddStudent(w http.ResponseWriter, r *http.Request) {
 	//read student data from response body
 	responseBody, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		log.Println("Could not read response body")
+		log.Println("Add student : Could not read response body")
 		log.Println(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
@@ -97,7 +97,7 @@ func (c *studentController) AddStudent(w http.ResponseWriter, r *http.Request) {
 	//convert json to struct type
 	er := json.Unmarshal(responseBody, student)
 	if er != nil {
-		log.Println("Json unmarshall unsuccessful")
+		log.Println("Add student : Json unmarshall unsuccessful")
 		log.Println(er)
 		http.Error(w, er.Error(), http.StatusBadRequest)
 		return
@@ -125,7 +125,7 @@ func (c *studentController) UpdateStudent(w http.ResponseWriter, r *http.Request
 	//read student data from response body
 	responseBody, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		log.Println("Could not read response body")
+		log.Println("Update student : Could not read response body")
 		log.Println(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
@@ -133,7 +133,7 @@ func (c *studentController) UpdateStudent(w http.ResponseWriter, r *http.Request
 	//convert json to struct type
 	er := json.Unmarshal(responseBody, student)
 	if er != nil {
-		log.Println("Json unmarshall unsuccessful")
+		log.Println("Update student : Json unmarshall unsuccessful")
 		log.Println(er)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return

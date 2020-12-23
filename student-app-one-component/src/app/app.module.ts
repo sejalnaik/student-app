@@ -13,13 +13,15 @@ import { StudentService } from "./services/student.service";
 import { HomeComponent } from './components/home/home.component';
 import { ErrorComponent } from './components/error/error.component';
 import { RoutesClass } from "./classes/route-class";
+import { EmptyToNullDirectveDirective } from './directives/empty-to-null-directve.directive';
 
 @NgModule({
   declarations: [
     AppComponent,
     StudentCrudComponent,
     HomeComponent,
-    ErrorComponent
+    ErrorComponent,
+    EmptyToNullDirectveDirective
   ],
   imports: [
     BrowserModule,

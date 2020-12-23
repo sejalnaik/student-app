@@ -5,8 +5,8 @@ import (
 	"errors"
 
 	"github.com/jinzhu/gorm"
-	"github.com/sejalnaik/student-app/model"
 	"github.com/sejalnaik/student-app/repository"
+	"github.com/sejalnaik/student-app/student/model"
 	"github.com/sejalnaik/student-app/utility"
 )
 
@@ -65,6 +65,9 @@ func (s *StudentService) AddStudent(student *model.Student) error {
 		return errors.New(string(errorJSONString))
 	}
 
+	//convert empty frilds of student to null
+	utility.AddStudentEmptyStringToNull(student)
+
 	//call add repository method to add one student
 	if err := s.repository.Add(uow, student); err != nil {
 		uow.Complete()
@@ -82,16 +85,19 @@ func (s *StudentService) UpdateStudent(student *model.Student, studentID string)
 	//check student validation
 	if validErrs := student.Validate(); len(validErrs) > 0 {
 		err := map[string]interface{}{"validationError": validErrs}
-		errorJsonString, _ := json.Marshal(err)
-		return errors.New(string(errorJsonString))
+		errorJSONString, _ := json.Marshal(err)
+		return errors.New(string(errorJSONString))
 	}
 
 	//give query processor for where
 	queryProcessors := []repository.QueryProcessor{}
 	queryProcessors = append(queryProcessors, repository.Where(studentID))
 
+	//convert student struct to map
+	studentMap := utility.ConvertStructStudentToMap(student)
+
 	//call update repository method to update one student
-	if err := s.repository.Update(uow, student, queryProcessors); err != nil {
+	if err := s.repository.Update(uow, student, studentMap, queryProcessors); err != nil {
 		uow.Complete()
 		return err
 	} else {

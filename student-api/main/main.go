@@ -11,10 +11,10 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 
-	"github.com/sejalnaik/student-app/controller"
-	"github.com/sejalnaik/student-app/model"
 	"github.com/sejalnaik/student-app/repository"
-	"github.com/sejalnaik/student-app/service"
+	"github.com/sejalnaik/student-app/student/controller"
+	"github.com/sejalnaik/student-app/student/model"
+	"github.com/sejalnaik/student-app/student/service"
 )
 
 func main() {

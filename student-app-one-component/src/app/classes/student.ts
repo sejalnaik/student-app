@@ -7,4 +7,5 @@ export interface Student {
     dobTime : string
     email:string,
     isMale:boolean
+    phoneNumber:string
 }

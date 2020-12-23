@@ -1,7 +1,7 @@
 package utility
 
 import (
-	"github.com/sejalnaik/student-app/model"
+	"github.com/sejalnaik/student-app/student/model"
 )
 
 func ConvertStudentTimeToDate(student *model.Student) {
@@ -34,6 +34,78 @@ func ConvertStudentsTimeToDate(students *[]model.Student) {
 			tempDOBTIME := *tempStudents[i].DOBTIME
 			tempDOBTIME = tempDOBTIME[:19]
 			tempStudents[i].DOBTIME = &tempDOBTIME
+		}
+	}
+}
+
+func ConvertStructStudentToMap(student *model.Student) map[string]interface{} {
+	studentMap := make(map[string]interface{})
+
+	//rollno
+	if student.RollNo == nil {
+		studentMap["RollNo"] = nil
+	} else {
+		studentMap["RollNo"] = *student.RollNo
+	}
+
+	//name
+	studentMap["Name"] = student.Name
+
+	//age
+	if student.Age == nil {
+		studentMap["Age"] = nil
+	} else {
+		studentMap["Age"] = *student.Age
+	}
+
+	//email
+	studentMap["Email"] = student.Email
+
+	//isMale
+	if student.IsMale == nil {
+		studentMap["IsMale"] = nil
+	} else {
+		studentMap["IsMale"] = *student.IsMale
+	}
+
+	//dob
+	if student.DOB == nil || *student.DOB == "" {
+		studentMap["DOB"] = nil
+	} else {
+		studentMap["DOB"] = *student.DOB
+	}
+
+	//dobTime
+	if student.DOBTIME == nil || *student.DOBTIME == "" {
+		studentMap["DOBTIME"] = nil
+	} else {
+		studentMap["DOBTIME"] = *student.DOBTIME
+	}
+
+	//phoneNumber
+	if student.PhoneNumber == nil || *student.PhoneNumber == "" {
+		studentMap["PhoneNumber"] = nil
+	} else {
+		studentMap["PhoneNumber"] = *student.PhoneNumber
+	}
+
+	return studentMap
+}
+
+func AddStudentEmptyStringToNull(student *model.Student) {
+	if student.DOB != nil {
+		if *student.DOB == "" {
+			student.DOB = nil
+		}
+	}
+	if student.DOBTIME != nil {
+		if *student.DOBTIME == "" {
+			student.DOBTIME = nil
+		}
+	}
+	if student.PhoneNumber != nil {
+		if *student.PhoneNumber == "" {
+			student.PhoneNumber = nil
 		}
 	}
 }

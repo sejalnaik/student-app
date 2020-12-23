@@ -28,6 +28,8 @@ export class StudentService {
 
   updateStudent(student:Student):Observable<Student>{
     let studentJSON:string = JSON.stringify(student);
+    console.log("Inside service ")
+    console.log(studentJSON)
     let httpHeaders = new HttpHeaders({'Content-Type' : 'application/json'});
     return this.httpClient.put<Student>(this.baseUrl + "/" + student.id, studentJSON, {'headers':httpHeaders, responseType:'text' as 'json'});
   }

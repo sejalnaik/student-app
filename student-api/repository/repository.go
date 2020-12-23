@@ -14,7 +14,7 @@ func NewRepository() Repository {
 type Repository interface {
 	Get(uow *UnitOfWork, out interface{}, queryProcessors []QueryProcessor) error
 	Add(uow *UnitOfWork, entity interface{}) error
-	Update(uow *UnitOfWork, entity interface{}, queryProcessors []QueryProcessor) error
+	Update(uow *UnitOfWork, entity interface{}, entityMap map[string]interface{}, queryProcessors []QueryProcessor) error
 	Delete(uow *UnitOfWork, entity interface{}, queryProcessors []QueryProcessor) error
 }
 
@@ -60,7 +60,7 @@ func (r *gormRepository) Add(uow *UnitOfWork, entity interface{}) error {
 	return nil
 }
 
-func (r *gormRepository) Update(uow *UnitOfWork, entity interface{}, queryProcessors []QueryProcessor) error {
+func (r *gormRepository) Update(uow *UnitOfWork, entity interface{}, entityMap map[string]interface{}, queryProcessors []QueryProcessor) error {
 	db := uow.DB
 	defer func() {
 		if r := recover(); r != nil {
@@ -79,7 +79,7 @@ func (r *gormRepository) Update(uow *UnitOfWork, entity interface{}, queryProces
 			}
 		}
 	}
-	if err := db.Debug().Update(entity).Error; err != nil {
+	if err := db.Debug().Updates(entityMap).Error; err != nil {
 		return err
 	}
 	return nil

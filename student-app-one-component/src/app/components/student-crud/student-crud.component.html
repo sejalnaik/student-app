@@ -15,6 +15,7 @@
                 <th>AGE</th>
                 <th>EMAIL</th>
                 <th>GENDER</th>
+                <th>PHONE NUMBER</th>
                 <th>UPDATE</th>
                 <th>DELETE</th>
             </tr>
@@ -33,6 +34,7 @@
                     <span>Female</span>
                 </ng-template>
             </td>
+            <td>{{student.phoneNumber}}</td>
             <td><button (click) = "onUpdateButtonClick(student.id, studentFormModal)" #formModalBtn data-toggle="modal" data-target="#formModal" data-backdrop="static" data-keyboard="false">UPDATE</button></td>
             <td><button (click) = "deleteStudent(student.id)">DELETE</button></td>
         </tr>
@@ -57,7 +59,7 @@
                 </div>
                 <div class="col-sm-4">
                     <span *ngIf = "addForm.get('rollNo').invalid && (addForm.get('rollNo').dirty || addForm.get('rollNo').touched)" [class] = "'required'">
-                        <span *ngIf="addForm.get('rollNo').errors.required">RollNo is required</span>
+                        <!--<span *ngIf="addForm.get('rollNo').errors.required">RollNo is required</span>-->
                         <span *ngIf="addForm.get('rollNo').errors.min">RollNo cannot be less than zero</span>
                     </span>
                 </div>
@@ -66,7 +68,7 @@
             <div class="form-group row">
                 <label class="control-label col-sm-2" for="nameId" >Name</label>
                 <div class="col-sm-6">
-                    <input type="text" class="form-control" id="nameId" formControlName="name" required>
+                    <input type="text" class="form-control" id="nameId" formControlName="name">
                 </div>
                 <div class="col-sm-4">
                     <span *ngIf = "addForm.get('name').invalid && (addForm.get('name').dirty || addForm.get('name').touched)" [class] = "'required'">
@@ -79,31 +81,31 @@
             <div class="form-group row">
                 <label class="control-label col-sm-2" for="dobId" >DOB</label>
                 <div class="col-sm-6">
-                    <input type="date" class="form-control" id="dobId" formControlName="dob" (change) = "dobChange()" required>
+                    <input type="date" class="form-control" id="dobId" formControlName="dob" (change) = "dobChange()">
                 </div>
-                <div class="col-sm-4">
+                <!--<div class="col-sm-4">
                     <span *ngIf = "addForm.get('dob').invalid && (addForm.get('dob').dirty || addForm.get('dob').touched)" [class] = "'required'">DOB is required</span>
-                </div>
+                </div>-->
             </div>
 
             <div class="form-group row">
                 <label class="control-label col-sm-2" for="dobTimeId" >DOB/Time</label>
                 <div class="col-sm-6">
-                    <input type="datetime-local" class="form-control" id="dobTimeId" formControlName="dobTime" required>
+                    <input type="datetime-local" class="form-control" id="dobTimeId" formControlName="dobTime">
                 </div>
-                <div class="col-sm-4">
+                <!--<div class="col-sm-4">
                     <span *ngIf = "addForm.get('dobTime').invalid && (addForm.get('dobTime').dirty || addForm.get('dobTime').touched)" [class] = "'required'">DOB/Time is required</span>
-                </div>
+                </div>-->
             </div>
         
             <div class="form-group row">
                 <label class="control-label col-sm-2" for="ageId">Age</label>
                 <div class="col-sm-6">
-                    <input type="number" class="form-control" id="ageId" formControlName="age" required>
+                    <input type="number" class="form-control" id="ageId" formControlName="age">
                 </div>
                 <div class="col-sm-4">
                     <span *ngIf = "addForm.get('age').invalid && (addForm.get('age').dirty || addForm.get('age').touched)" [class] = "'required'">
-                        <span *ngIf="addForm.get('age').errors.required">Age is required</span>
+                        <!--<span *ngIf="addForm.get('age').errors.required">Age is required</span>-->
                         <span *ngIf="addForm.get('age').errors.min">Age cannot be less than zero</span>
                     </span>
                 </div>
@@ -112,7 +114,7 @@
             <div class="form-group row">
                 <label class="control-label col-sm-2" for="emailId" >Email</label>
                 <div class="col-sm-6">
-                    <input type="text" class="form-control" id="emailId" formControlName="email" required>
+                    <input type="text" class="form-control" id="emailId" formControlName="email">
                 </div>
                 <div class="col-sm-4">
                     <span *ngIf = "addForm.get('email').invalid && (addForm.get('email').dirty || addForm.get('email').touched)" [class] = "'required'">
@@ -128,24 +130,34 @@
                     <div class="col-sm-3" [style.margin-top] = "'5px'" [style.text-align] = "'center'">
                         <span >
                             <label>Male</label>
-                            <input type="radio" name="gender" [value] = true formControlName="gender" required>
+                            <input type="radio" name="gender" [value] = true formControlName="gender">
                         </span>
                     </div>
                     <div class="col-sm-3" [style.margin-top] = "'5px'" [style.text-align] = "'left'">
                         <span>
                             <label>Female</label>
-                            <input type="radio" name="gender" [value] = false formControlName="gender" required>
+                            <input type="radio" name="gender" [value] = false formControlName="gender">
                         </span>
                     </div>
                     
-                    <div class="col-sm-4">
+                    <!--<div class="col-sm-4">
                         <div *ngIf="addOrUpdateAction == 'add'">
                             <span *ngIf = "addForm.get('gender').invalid && addForm.get('gender').dirty" [class] = "'required'">Gender is required</span>
                         </div>
-                    </div>
+                    </div>-->
                 
                 </div>
             </fieldset>
+
+            <div class="form-group row">
+                <label class="control-label col-sm-2" for="phoneNumberId" >Phone Number</label>
+                <div class="col-sm-6">
+                    <input type="text" class="form-control" id="phoneNumberId" formControlName="phoneNumber">
+                </div>
+                <div class="col-sm-4">
+                    <span *ngIf = "addForm.get('phoneNumber').invalid && (addForm.get('phoneNumber').dirty || addForm.get('phoneNumber').touched)" [class] = "'required'">Phone Number is required</span>
+                </div>
+            </div>
         
             <div class="form-group">
                 <button [disabled]="!addForm.valid || !addForm.dirty" id = "submitButtonId" class="btn btn-primary" type="submit" (click) = "validate()">SUBMIT</button>

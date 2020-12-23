@@ -34,13 +34,14 @@ export class StudentCrudComponent implements OnInit {
 
   formBuild(){
     this.addForm = this.formBuilder.group({
-      rollNo: ['', [Validators.required, Validators.min(0)]],
+      rollNo: [null, Validators.min(0)],
       name: ['', [Validators.required,  Validators.pattern("^[a-zA-Z_ ]+$")]],
-      age: ['', [Validators.required, Validators.min(0)]],
-      dob: ['', Validators.required],
-      dobTime: ['', Validators.required],
-      gender: ['', Validators.required],
-      email: ['', [Validators.required, Validators.pattern("^[a-zA-Z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$")]]
+      age: [null, Validators.min(0)],
+      dob: [null],
+      dobTime: [null],
+      gender: [null],
+      email: ['', [Validators.required, Validators.pattern("^[a-zA-Z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$")]],
+      phoneNumber:[null]
     });
   }
   
@@ -90,7 +91,8 @@ export class StudentCrudComponent implements OnInit {
                       email:this.addForm.get('email').value, 
                       isMale:this.addForm.get('gender').value, 
                       dob:this.addForm.get('dob').value,
-                      dobTime:this.addForm.get('dobTime').value};
+                      dobTime:this.addForm.get('dobTime').value,
+                      phoneNumber:this.addForm.get('phoneNumber').value};
     this.studentService.addStudent(this.studentAPI).subscribe(data=>{
       this.spinner.show()
       this.modalRef.close();
@@ -130,7 +132,8 @@ export class StudentCrudComponent implements OnInit {
           dob: data.dob,
           dobTime: data.dobTime,
           email: data.email,
-          gender: data.isMale
+          gender: data.isMale,
+          phoneNumber:data.phoneNumber
         });
         this.spinner.hide()
       },
@@ -150,9 +153,11 @@ export class StudentCrudComponent implements OnInit {
         email:this.addForm.get('email').value, 
         isMale:this.addForm.get('gender').value, 
         dob:this.addForm.get('dob').value,
-        dobTime:this.addForm.get('dobTime').value
+        dobTime:this.addForm.get('dobTime').value,
+        phoneNumber:this.addForm.get('phoneNumber').value
       };
 
+      //this.dateEmptyToNull(this.studentAPI)
       this.studentService.updateStudent(this.studentAPI).subscribe((data)=>{
         this.modalRef.close();
         this.getStudents();
@@ -175,6 +180,15 @@ export class StudentCrudComponent implements OnInit {
         );
       }
     }
+
+    /*dateEmptyToNull(studentAPI:Student):void{
+      if (studentAPI.dob == ""){
+        studentAPI.dob = null
+      }
+      if (studentAPI.dobTime == ""){
+        studentAPI.dobTime = null
+      }
+    }*/
 
     openStudentFormModal(studentFormModal: any):void {
       this.modalRef = this.modalService.open(studentFormModal, { ariaLabelledBy: 'modal-basic-title', backdrop: 'static', size: 'xl' });
