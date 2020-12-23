@@ -1,0 +1,10 @@
+.required{
+    color: red;
+    position: relative;
+    top: 6px;
+}
+
+button{
+    margin-top: 20px;
+    margin-left: 10%;
+}

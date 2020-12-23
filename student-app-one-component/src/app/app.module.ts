@@ -10,10 +10,12 @@ import { NgxSpinnerModule } from "ngx-spinner";
 import { AppComponent } from './app.component';
 import { StudentCrudComponent } from './components/student-crud/student-crud.component';
 import { StudentService } from "./services/student.service";
+import { UserService } from "./services/user.service";
 import { HomeComponent } from './components/home/home.component';
 import { ErrorComponent } from './components/error/error.component';
 import { RoutesClass } from "./classes/route-class";
 import { EmptyToNullDirectveDirective } from './directives/empty-to-null-directve.directive';
+import { LoginComponent } from './components/login/login.component';
 
 @NgModule({
   declarations: [
@@ -21,7 +23,8 @@ import { EmptyToNullDirectveDirective } from './directives/empty-to-null-directv
     StudentCrudComponent,
     HomeComponent,
     ErrorComponent,
-    EmptyToNullDirectveDirective
+    EmptyToNullDirectveDirective,
+    LoginComponent
   ],
   imports: [
     BrowserModule,
@@ -34,7 +37,8 @@ import { EmptyToNullDirectveDirective } from './directives/empty-to-null-directv
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   providers: [
-    StudentService
+    StudentService,
+    UserService
   ],
   bootstrap: [AppComponent]
 })

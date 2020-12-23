@@ -12,9 +12,13 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 
 	"github.com/sejalnaik/student-app/repository"
-	"github.com/sejalnaik/student-app/student/controller"
-	"github.com/sejalnaik/student-app/student/model"
-	"github.com/sejalnaik/student-app/student/service"
+	studentcontroller "github.com/sejalnaik/student-app/student/student-controller"
+	studentmodel "github.com/sejalnaik/student-app/student/student-model"
+	studentservice "github.com/sejalnaik/student-app/student/student-service"
+
+	usercontroller "github.com/sejalnaik/student-app/user/user-controller"
+	usermodel "github.com/sejalnaik/student-app/user/user-model"
+	userservice "github.com/sejalnaik/student-app/user/user-service"
 )
 
 func main() {
@@ -25,7 +29,7 @@ func main() {
 	if err != nil {
 		fmt.Print(err)
 	}
-	db.AutoMigrate(&model.Student{})
+	db.AutoMigrate(&studentmodel.Student{}, &usermodel.User{})
 
 	//create router
 	r := mux.NewRouter()
@@ -43,14 +47,23 @@ func main() {
 	//create repository
 	repository := repository.NewRepository()
 
-	//create service
-	studentService := service.NewStudentService(repository, db)
+	//create student service
+	studentService := studentservice.NewStudentService(repository, db)
 
-	//create controller
-	studentController := controller.NewStudentController(studentService)
+	//create student controller
+	studentController := studentcontroller.NewStudentController(studentService)
 
-	//create routes
+	//create student routes
 	studentController.CreateRoutes(r)
+
+	//create user service
+	userService := userservice.NewUserService(repository, db)
+
+	//create user controller
+	userController := usercontroller.NewUserController(userService)
+
+	//create user routes
+	userController.CreateRoutes(r)
 
 	//listen to port 8080
 	log.Fatal(server.ListenAndServe())

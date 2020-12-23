@@ -1,4 +1,4 @@
-package controller
+package studentcontroller
 
 import (
 	"encoding/json"
@@ -7,8 +7,8 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/sejalnaik/student-app/student/model"
-	"github.com/sejalnaik/student-app/student/service"
+	model "github.com/sejalnaik/student-app/student/student-model"
+	service "github.com/sejalnaik/student-app/student/student-service"
 )
 
 type studentController struct {

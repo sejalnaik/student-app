@@ -195,5 +195,5 @@ export class StudentCrudComponent implements OnInit {
       /*this.modalRef.result.then((result) => {
       }, (reason) => {
       });*/
-}
+    }
 }
