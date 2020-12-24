@@ -58,7 +58,7 @@ export class LoginComponent implements OnInit {
       //create cookie with the token
       this.cookieService.set("token", JSON.stringify(data), dateNow)
       
-      //redirect to home
+      //redirect to list
       this.router.navigate(["/list"]);
     },
       (err) => {

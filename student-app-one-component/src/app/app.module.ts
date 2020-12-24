@@ -17,6 +17,7 @@ import { ErrorComponent } from './components/error/error.component';
 import { RoutesClass } from "./classes/route-class";
 import { EmptyToNullDirectveDirective } from './directives/empty-to-null-directve.directive';
 import { LoginComponent } from './components/login/login.component';
+import { LogoutComponent } from './components/logout/logout.component';
 
 @NgModule({
   declarations: [
@@ -25,7 +26,8 @@ import { LoginComponent } from './components/login/login.component';
     HomeComponent,
     ErrorComponent,
     EmptyToNullDirectveDirective,
-    LoginComponent
+    LoginComponent,
+    LogoutComponent
   ],
   imports: [
     BrowserModule,
