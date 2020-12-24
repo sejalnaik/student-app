@@ -4,14 +4,22 @@ import (
 	"net/url"
 	"regexp"
 
+	"github.com/dgrijalva/jwt-go"
 	model "github.com/sejalnaik/student-app/student/student-model"
 )
+
+const JwtKey = "mysecretkey"
 
 type User struct {
 	model.Base
 	Username string `json:"username"`
 	Password string `json:"password"`
 	//Email    string `json:"email"`
+}
+
+type Claims struct {
+	Username string `json:"username"`
+	jwt.StandardClaims
 }
 
 func (s *User) Validate() url.Values {

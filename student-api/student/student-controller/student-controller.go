@@ -2,13 +2,16 @@ package studentcontroller
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/mux"
-	model "github.com/sejalnaik/student-app/student/student-model"
+	studentmodel "github.com/sejalnaik/student-app/student/student-model"
 	service "github.com/sejalnaik/student-app/student/student-service"
+	usermodel "github.com/sejalnaik/student-app/user/user-model"
 )
 
 type studentController struct {
@@ -22,21 +25,73 @@ func NewStudentController(studentService *service.StudentService) *studentContro
 }
 
 func (c *studentController) CreateRoutes(r *mux.Router) {
+	//create subrouter
+	apiRoutes := r.PathPrefix("/api").Subrouter()
+	//token check middleware
+	apiRoutes.Use(tokenCheckMiddleware)
 	//get students
-	r.HandleFunc("/students", c.GetAllStudents).Methods("GET")
+	apiRoutes.HandleFunc("/students", c.GetAllStudents).Methods("GET")
 	//get one student
-	r.HandleFunc("/students/{studentID}", c.GetStudent).Methods("GET")
+	apiRoutes.HandleFunc("/students/{studentID}", c.GetStudent).Methods("GET")
 	//add student
-	r.HandleFunc("/students", c.AddStudent).Methods("POST")
+	apiRoutes.HandleFunc("/students", c.AddStudent).Methods("POST")
 	//update student
-	r.HandleFunc("/students/{studentID}", c.UpdateStudent).Methods("PUT")
+	apiRoutes.HandleFunc("/students/{studentID}", c.UpdateStudent).Methods("PUT")
 	//delete student
-	r.HandleFunc("/students/{studentID}", c.DeleteStudent).Methods("DELETE")
+	apiRoutes.HandleFunc("/students/{studentID}", c.DeleteStudent).Methods("DELETE")
+}
+
+func tokenCheckMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Println("tokenCheckMiddleware called")
+
+		//get token string from header
+		tokenString := r.Header.Get("token")
+
+		//if token not present send not authorized to access
+		if tokenString == "" {
+			log.Println("Token is not present")
+			http.Error(w, "Token is not present", http.StatusUnauthorized)
+			return
+		}
+
+		//trim inverted commas frmm the token
+		tokenString = tokenString[1 : len(tokenString)-1]
+
+		//parse the tokenstring to get the token
+		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+				return nil, fmt.Errorf("There was an error")
+			}
+			return []byte(usermodel.JwtKey), nil
+		})
+		if err != nil {
+			if err == jwt.ErrSignatureInvalid {
+				//token is invalid
+				log.Println("tokenCheckMiddleware : Token is invalid")
+				log.Println(err)
+				http.Error(w, err.Error(), http.StatusUnauthorized)
+				return
+			}
+			//bad request
+			log.Println("tokenCheckMiddleware : Bad request")
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		if !token.Valid {
+			//token is invalid
+			log.Println("tokenCheckMiddleware : Token is invalid")
+			http.Error(w, err.Error(), http.StatusUnauthorized)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
 }
 
 func (c *studentController) GetAllStudents(w http.ResponseWriter, r *http.Request) {
+	log.Println("Get students called")
 	//create bucket
-	students := []model.Student{}
+	students := []studentmodel.Student{}
 
 	//calling service method to get all students
 	if err := c.studentService.GetAllStudents(&students); err != nil {
@@ -57,8 +112,9 @@ func (c *studentController) GetAllStudents(w http.ResponseWriter, r *http.Reques
 }
 
 func (c *studentController) GetStudent(w http.ResponseWriter, r *http.Request) {
+	log.Println("Get student called")
 	//create bucket
-	student := model.Student{}
+	student := studentmodel.Student{}
 
 	//getting id from query param
 	params := mux.Vars(r)
@@ -83,8 +139,9 @@ func (c *studentController) GetStudent(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *studentController) AddStudent(w http.ResponseWriter, r *http.Request) {
+	log.Println("Add student called")
 	//create bucket
-	student := &model.Student{}
+	student := &studentmodel.Student{}
 
 	//read student data from response body
 	responseBody, err := ioutil.ReadAll(r.Body)
@@ -115,8 +172,9 @@ func (c *studentController) AddStudent(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *studentController) UpdateStudent(w http.ResponseWriter, r *http.Request) {
+	log.Println("Update student called")
 	//create bucket
-	student := &model.Student{}
+	student := &studentmodel.Student{}
 
 	//getting id from query param
 	params := mux.Vars(r)
@@ -151,8 +209,9 @@ func (c *studentController) UpdateStudent(w http.ResponseWriter, r *http.Request
 }
 
 func (c *studentController) DeleteStudent(w http.ResponseWriter, r *http.Request) {
+	log.Println("Delete student called")
 	//create bucket
-	student := &model.Student{}
+	student := &studentmodel.Student{}
 
 	//getting id from query param
 	params := mux.Vars(r)

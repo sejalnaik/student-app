@@ -5,6 +5,7 @@ import { Student } from 'src/app/classes/student';
 import { StudentService } from 'src/app/services/student.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { NgxSpinnerService } from "ngx-spinner";
+import { CookieService } from 'ngx-cookie-service';
 
 @Component({
   selector: 'app-student-crud',
@@ -28,6 +29,7 @@ export class StudentCrudComponent implements OnInit {
     private formBuilder:FormBuilder,
     private modalService: NgbModal,
     private spinner: NgxSpinnerService,
+    private cookieService: CookieService
     ) { 
       this.formBuild();
   }
@@ -56,8 +58,14 @@ export class StudentCrudComponent implements OnInit {
       //this.spinner.hide();
     },
     (err) => {
-      console.log('HTTP Error', err);
       this.spinner.hide();
+      console.log('HTTP Error', err);
+      if (err.status == 401){
+        alert("Access not allowed, please login first")
+        this.router.navigate(["/login"]);
+        return
+      }
+      alert(err.error)
     });
   }
 
@@ -100,8 +108,14 @@ export class StudentCrudComponent implements OnInit {
       alert("Student added with id :" + data);
     },
       (err) => {
-        console.log('HTTP Error', err);
-        this.spinner.hide() 
+        this.spinner.hide();
+      console.log('HTTP Error', err);
+      if (err.status == 401){
+        alert("Access not allowed, please login first")
+        this.router.navigate(["/login"]);
+        return
+      }
+      alert(err.error)
       });
     }
 
@@ -138,8 +152,14 @@ export class StudentCrudComponent implements OnInit {
         this.spinner.hide()
       },
       (err) => {
+        this.spinner.hide();
         console.log('HTTP Error', err);
-        this.spinner.hide()
+        if (err.status == 401){
+          alert("Access not allowed, please login first")
+          this.router.navigate(["/login"]);
+          return
+        }
+        alert(err.error)
       });
     }
 
@@ -164,8 +184,14 @@ export class StudentCrudComponent implements OnInit {
         alert("Student updated with id :" + data); 
       },
       (err) => {
+        this.spinner.hide();
         console.log('HTTP Error', err);
-        this.spinner.hide()
+        if (err.status == 401){
+          alert("Access not allowed, please login first")
+          this.router.navigate(["/login"]);
+          return
+        }
+        alert(err.error)
       });
     }
 
@@ -176,8 +202,16 @@ export class StudentCrudComponent implements OnInit {
           this.getStudents();
           alert("Student deleted with id :" + data);
         },
-        (err) => console.log('HTTP Error', err)
-        );
+        (err) => {
+          this.spinner.hide();
+          console.log('HTTP Error', err);
+          if (err.status == 401){
+            alert("Access not allowed, please login first")
+            this.router.navigate(["/login"]);
+            return
+          }
+          alert(err.error)
+        });
       }
     }
 

@@ -33,7 +33,7 @@ func main() {
 
 	//create router
 	r := mux.NewRouter()
-	headers := handlers.AllowedHeaders([]string{"Content-Type"})
+	headers := handlers.AllowedHeaders([]string{"Content-Type", "token"})
 	methods := handlers.AllowedMethods([]string{"POST", "GET", "PUT", "DELETE"})
 	origin := handlers.AllowedOrigins([]string{"*"})
 

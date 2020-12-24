@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { Observable } from 'rxjs';
 import { Student } from "../classes/student";
+import { CookieService } from 'ngx-cookie-service';
 
 @Injectable({
   providedIn: 'root'
@@ -9,32 +10,59 @@ import { Student } from "../classes/student";
 export class StudentService {
 
   students:Student[] = [];
-  constructor(private httpClient:HttpClient){}
-  baseUrl:string = "http://localhost:8080/students";
+  constructor(
+    private httpClient:HttpClient,
+    private cookieService: CookieService
+    ){}
+  baseUrl:string = "http://localhost:8080/api/students";
 
   getStudents():Observable<Student[]>{
-    return this.httpClient.get<Student[]>(this.baseUrl);
+    //create header instance
+    let httpHeaders:HttpHeaders = new HttpHeaders()
+    
+    //add token to header from cookie
+    httpHeaders =  httpHeaders.append("token", this.cookieService.get("token"));
+
+    return this.httpClient.get<Student[]>(this.baseUrl, {'headers' : httpHeaders});
   }
   
   addStudent(student:Student):Observable<Student>{
-    let studentJSON:string = JSON.stringify(student);
-    let httpHeaders = new HttpHeaders().set('Content-Type', 'application/json');
-    return this.httpClient.post<Student>(this.baseUrl, studentJSON, {'headers':httpHeaders, responseType:'text' as 'json'});
+    //create header instance
+    let httpHeaders:HttpHeaders = new HttpHeaders()
+    
+    //add token to header from cookie
+    httpHeaders =  httpHeaders.append("token", this.cookieService.get("token"));
+
+    return this.httpClient.post<Student>(this.baseUrl, student, {'headers':httpHeaders, responseType:'text' as 'json'});
   }
 
   getStudent(id:string):Observable<Student>{
-   return this.httpClient.get<Student>(this.baseUrl + "/" + id);
+    //create header instance
+    let httpHeaders:HttpHeaders = new HttpHeaders()
+    
+    //add token to header from cookie
+    httpHeaders =  httpHeaders.append("token", this.cookieService.get("token"));
+
+    return this.httpClient.get<Student>(this.baseUrl + "/" + id, {'headers' : httpHeaders});
   }
 
   updateStudent(student:Student):Observable<Student>{
-    let studentJSON:string = JSON.stringify(student);
-    console.log("Inside service ")
-    console.log(studentJSON)
-    let httpHeaders = new HttpHeaders({'Content-Type' : 'application/json'});
-    return this.httpClient.put<Student>(this.baseUrl + "/" + student.id, studentJSON, {'headers':httpHeaders, responseType:'text' as 'json'});
+    //create header instance
+    let httpHeaders:HttpHeaders = new HttpHeaders()
+    
+    //add token to header from cookie
+    httpHeaders =  httpHeaders.append("token", this.cookieService.get("token"));
+
+    return this.httpClient.put<Student>(this.baseUrl + "/" + student.id, student, {'headers':httpHeaders, responseType:'text' as 'json'});
   }
   deleteStudent(id:string){
-    return this.httpClient.delete<Student>(this.baseUrl + "/" + id, {responseType:'text' as 'json'});
+    //create header instance
+    let httpHeaders:HttpHeaders = new HttpHeaders()
+    
+    //add token to header from cookie
+    httpHeaders =  httpHeaders.append("token", this.cookieService.get("token"));
+
+    return this.httpClient.delete<Student>(this.baseUrl + "/" + id, {'headers':httpHeaders, responseType:'text' as 'json'});
   }
 }
 

@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { User } from 'src/app/classes/user';
 import { UserService } from 'src/app/services/user.service';
+import { CookieService } from 'ngx-cookie-service';
 
 @Component({
   selector: 'app-login',
@@ -23,7 +24,8 @@ export class LoginComponent implements OnInit {
     private userService:UserService, 
     private router:Router, 
     private formBuilder:FormBuilder,
-    private modalService: NgbModal
+    private modalService: NgbModal,
+    private cookieService: CookieService
   ) { }
 
   ngOnInit(): void {
@@ -48,7 +50,16 @@ export class LoginComponent implements OnInit {
     };
     this.userService.login(this.user).subscribe(data=>{
       this.modalRef.close();
-      this.router.navigate(["/home"]);
+      
+      //set time for cookie
+      const dateNow = new Date();
+      dateNow.setMinutes(dateNow.getMinutes() + 5);
+      
+      //create cookie with the token
+      this.cookieService.set("token", JSON.stringify(data), dateNow)
+      
+      //redirect to home
+      this.router.navigate(["/list"]);
     },
       (err) => {
         console.log('HTTP Error', err);
@@ -57,14 +68,24 @@ export class LoginComponent implements OnInit {
     );
   }
 
-  openLoginFormModal(loginFormModal: any):void {
-    this.modalRef = this.modalService.open(loginFormModal, { ariaLabelledBy: 'modal-basic-title', backdrop: 'static', size: 'xl' });
-    /*this.modalRef.result.then((result) => {
-    }, (reason) => {
-    });*/
+  register():void{
+    this.user = { 
+      username:this.loginForm.get('username').value, 
+      password:this.loginForm.get('password').value
+    };
+    this.userService.register(this.user).subscribe(data=>{
+      alert("Successfully registered with id:" + data)
+      this.setLoginForm()
+      this.wrongLoginDetailsErrorShow = "none"
+    },
+      (err) => {
+        console.log('HTTP Error', err);
+      }
+    );
   }
 
   setRegisterForm():void{
+    this.wrongLoginDetailsErrorShow = "none"
     this.formBuild()
     this.loginOrRegisterAction = "register"
   }
@@ -86,19 +107,11 @@ export class LoginComponent implements OnInit {
     }
   }
 
-  register():void{
-    this.user = { 
-      username:this.loginForm.get('username').value, 
-      password:this.loginForm.get('password').value
-    };
-    this.userService.register(this.user).subscribe(data=>{
-      alert("Successfully registered with id:" + data)
-      this.setLoginForm()
-      this.wrongLoginDetailsErrorShow = "none"
-    },
-      (err) => {
-        console.log('HTTP Error', err);
-      }
-    );
+  openLoginFormModal(loginFormModal: any):void {
+    this.modalRef = this.modalService.open(loginFormModal, { ariaLabelledBy: 'modal-basic-title', backdrop: 'static', size: 'xl' });
+    /*this.modalRef.result.then((result) => {
+    }, (reason) => {
+    });*/
   }
 }
+

@@ -5,7 +5,9 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"time"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/mux"
 	model "github.com/sejalnaik/student-app/user/user-model"
 	service "github.com/sejalnaik/student-app/user/user-service"
@@ -23,12 +25,12 @@ func NewUserController(userService *service.UserService) *userController {
 
 func (c *userController) CreateRoutes(r *mux.Router) {
 	//login user
-	r.HandleFunc("/login", c.GetUser).Methods("POST")
-	//add student
-	r.HandleFunc("/register", c.AddUser).Methods("POST")
+	r.HandleFunc("/login", c.Login).Methods("POST")
+	//register user
+	r.HandleFunc("/register", c.Register).Methods("POST")
 }
 
-func (c *userController) GetUser(w http.ResponseWriter, r *http.Request) {
+func (c *userController) Login(w http.ResponseWriter, r *http.Request) {
 	//create bucket
 	user := &model.User{}
 
@@ -56,11 +58,19 @@ func (c *userController) GetUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	} else {
 		log.Println("Get user successful")
-		w.Write([]byte(user.ID.String()))
+
+		//create the token
+		if tokenString, err := createToken(user); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		} else {
+			log.Println("Token created successfully")
+			log.Println("Token sent successfully")
+			w.Write([]byte(tokenString))
+		}
 	}
 }
 
-func (c *userController) AddUser(w http.ResponseWriter, r *http.Request) {
+func (c *userController) Register(w http.ResponseWriter, r *http.Request) {
 	//create bucket
 	user := &model.User{}
 
@@ -90,4 +100,29 @@ func (c *userController) AddUser(w http.ResponseWriter, r *http.Request) {
 		log.Println("Add user successful")
 		w.Write([]byte(user.ID.String()))
 	}
+}
+
+func createToken(user *model.User) (string, error) {
+	//set expiration time for cookie
+	expirationTime := time.Now().Add(5 * time.Minute)
+
+	//create a claim for the token
+	claims := &model.Claims{
+		Username: user.Username,
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: expirationTime.Unix(),
+		},
+	}
+
+	//create the token using hash algo and claims
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	//create the JWT string
+	tokenString, err := token.SignedString([]byte(model.JwtKey))
+	if err != nil {
+		log.Println("Create token: could not create token")
+		log.Println(err)
+		return "", err
+	}
+	return tokenString, nil
 }

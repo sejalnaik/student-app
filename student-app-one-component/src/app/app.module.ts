@@ -6,6 +6,7 @@ import {  RouterModule } from '@angular/router';
 import {  ReactiveFormsModule } from "@angular/forms";
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgxSpinnerModule } from "ngx-spinner";
+import { CookieService } from 'ngx-cookie-service';
 
 import { AppComponent } from './app.component';
 import { StudentCrudComponent } from './components/student-crud/student-crud.component';
@@ -38,7 +39,8 @@ import { LoginComponent } from './components/login/login.component';
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   providers: [
     StudentService,
-    UserService
+    UserService,
+    CookieService
   ],
   bootstrap: [AppComponent]
 })
