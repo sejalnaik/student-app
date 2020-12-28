@@ -19,7 +19,6 @@ import (
 
 	usercontroller "github.com/sejalnaik/student-app/user/user-controller"
 
-	_ "github.com/sejalnaik/student-app/student/docs"
 	userservice "github.com/sejalnaik/student-app/user/user-service"
 )
 

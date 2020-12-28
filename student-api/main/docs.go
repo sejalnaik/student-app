@@ -23,4 +23,4 @@
 //          in: header
 //
 // swagger:meta
-package docs
+package main
