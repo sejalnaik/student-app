@@ -5,8 +5,8 @@ import (
 	"errors"
 
 	"github.com/jinzhu/gorm"
+	"github.com/sejalnaik/student-app/model"
 	"github.com/sejalnaik/student-app/repository"
-	model "github.com/sejalnaik/student-app/user/user-model"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -31,7 +31,7 @@ func (s *UserService) GetUser(userToBeChecked *model.User) error {
 
 	//give query processor for where
 	queryProcessors := []repository.QueryProcessor{}
-	queryProcessors = append(queryProcessors, repository.WhereByUserName(userToBeChecked.Username))
+	queryProcessors = append(queryProcessors, repository.Where("username=?", userToBeChecked.Username))
 
 	//call get repository method to get one user
 	if err := s.repository.Get(uow, userFromDatabase, queryProcessors); err != nil {
@@ -41,9 +41,8 @@ func (s *UserService) GetUser(userToBeChecked *model.User) error {
 	//decrypt and check password
 	if err := bcrypt.CompareHashAndPassword([]byte(userFromDatabase.Password), []byte(userToBeChecked.Password)); err != nil {
 		return errors.New("Unauthorized user")
-	} else {
-		return nil
 	}
+	return nil
 }
 
 func (s *UserService) AddUser(user *model.User) error {
@@ -68,8 +67,7 @@ func (s *UserService) AddUser(user *model.User) error {
 	if err := s.repository.Add(uow, user); err != nil {
 		uow.Complete()
 		return err
-	} else {
-		uow.Commit()
-		return nil
 	}
+	uow.Commit()
+	return nil
 }

@@ -61,7 +61,7 @@ export class StudentCrudComponent implements OnInit {
       this.spinner.hide();
       console.log('HTTP Error', err);
       if (err.status == 401){
-        alert("Access not allowed, please login first")
+        alert("Session has expired, please login first")
         this.router.navigate(["/login"]);
         return
       }
@@ -111,7 +111,7 @@ export class StudentCrudComponent implements OnInit {
         this.spinner.hide();
       console.log('HTTP Error', err);
       if (err.status == 401){
-        alert("Access not allowed, please login first")
+        alert("Session has expired, please login first")
         this.router.navigate(["/login"]);
         return
       }
@@ -155,7 +155,7 @@ export class StudentCrudComponent implements OnInit {
         this.spinner.hide();
         console.log('HTTP Error', err);
         if (err.status == 401){
-          alert("Access not allowed, please login first")
+          alert("Session has expired, please login first")
           this.router.navigate(["/login"]);
           return
         }
@@ -187,7 +187,7 @@ export class StudentCrudComponent implements OnInit {
         this.spinner.hide();
         console.log('HTTP Error', err);
         if (err.status == 401){
-          alert("Access not allowed, please login first")
+          alert("Session has expired, please login first")
           this.router.navigate(["/login"]);
           return
         }
@@ -206,7 +206,7 @@ export class StudentCrudComponent implements OnInit {
           this.spinner.hide();
           console.log('HTTP Error', err);
           if (err.status == 401){
-            alert("Access not allowed, please login first")
+            alert("Session has expired, please login first")
             this.router.navigate(["/login"]);
             return
           }

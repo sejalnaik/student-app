@@ -20,16 +20,9 @@ type Repository interface {
 
 type QueryProcessor func(db *gorm.DB, out interface{}) (*gorm.DB, error)
 
-func WhereById(value interface{}) QueryProcessor {
+func Where(condition string, args ...interface{}) QueryProcessor {
 	return func(db *gorm.DB, out interface{}) (*gorm.DB, error) {
-		db = db.Model(out).Where("id = ?", value)
-		return db, nil
-	}
-}
-
-func WhereByUserName(value interface{}) QueryProcessor {
-	return func(db *gorm.DB, out interface{}) (*gorm.DB, error) {
-		db = db.Model(out).Where("username = ?", value)
+		db = db.Model(out).Where(condition, args...)
 		return db, nil
 	}
 }

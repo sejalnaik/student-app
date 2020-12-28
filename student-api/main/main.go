@@ -11,13 +11,14 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 
+	"github.com/sejalnaik/student-app/model"
 	"github.com/sejalnaik/student-app/repository"
 	studentcontroller "github.com/sejalnaik/student-app/student/student-controller"
-	studentmodel "github.com/sejalnaik/student-app/student/student-model"
+
 	studentservice "github.com/sejalnaik/student-app/student/student-service"
 
 	usercontroller "github.com/sejalnaik/student-app/user/user-controller"
-	usermodel "github.com/sejalnaik/student-app/user/user-model"
+
 	userservice "github.com/sejalnaik/student-app/user/user-service"
 )
 
@@ -29,7 +30,8 @@ func main() {
 	if err != nil {
 		fmt.Print(err)
 	}
-	db.AutoMigrate(&studentmodel.Student{}, &usermodel.User{})
+	log.Println("DB connection established")
+	db.AutoMigrate(&model.Student{}, &model.User{})
 
 	//create router
 	r := mux.NewRouter()
@@ -43,6 +45,8 @@ func main() {
 		ReadTimeout:  15 * time.Second,
 		Addr:         ":8080",
 	}
+
+	log.Println("Server connected")
 
 	//create repository
 	repository := repository.NewRepository()

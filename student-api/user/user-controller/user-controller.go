@@ -9,7 +9,7 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/mux"
-	model "github.com/sejalnaik/student-app/user/user-model"
+	"github.com/sejalnaik/student-app/model"
 	service "github.com/sejalnaik/student-app/user/user-service"
 )
 
@@ -55,7 +55,7 @@ func (c *userController) Login(w http.ResponseWriter, r *http.Request) {
 	if err := c.userService.GetUser(user); err != nil {
 		log.Println("Get user unsuccessful")
 		log.Println(err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	} else {
 		log.Println("Get user successful")
 
@@ -95,7 +95,7 @@ func (c *userController) Register(w http.ResponseWriter, r *http.Request) {
 	if err := c.userService.AddUser(user); err != nil {
 		log.Println("Add user unsuccessful")
 		log.Println(err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	} else {
 		log.Println("Add user successful")
 		w.Write([]byte(user.ID.String()))

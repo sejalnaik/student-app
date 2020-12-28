@@ -9,9 +9,9 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/mux"
-	studentmodel "github.com/sejalnaik/student-app/student/student-model"
+
+	"github.com/sejalnaik/student-app/model"
 	service "github.com/sejalnaik/student-app/student/student-service"
-	usermodel "github.com/sejalnaik/student-app/user/user-model"
 )
 
 type studentController struct {
@@ -48,22 +48,22 @@ func tokenCheckMiddleware(next http.Handler) http.Handler {
 		//get token string from header
 		tokenString := r.Header.Get("token")
 
-		//if token not present send not authorized to access
+		//if token not present send "not authorized to access"
 		if tokenString == "" {
-			log.Println("Token is not present")
-			http.Error(w, "Token is not present", http.StatusUnauthorized)
+			log.Println("Token is not present, access not allowed")
+			http.Error(w, "Token is not present, access not allowed", http.StatusUnauthorized)
 			return
 		}
 
-		//trim inverted commas frmm the token
+		//trim inverted commas from the token
 		tokenString = tokenString[1 : len(tokenString)-1]
 
 		//parse the tokenstring to get the token
 		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, fmt.Errorf("There was an error")
+				return nil, fmt.Errorf("Error while parsing token")
 			}
-			return []byte(usermodel.JwtKey), nil
+			return []byte(model.JwtKey), nil
 		})
 		if err != nil {
 			if err == jwt.ErrSignatureInvalid {
@@ -73,9 +73,9 @@ func tokenCheckMiddleware(next http.Handler) http.Handler {
 				http.Error(w, err.Error(), http.StatusUnauthorized)
 				return
 			}
-			//bad request
-			log.Println("tokenCheckMiddleware : Bad request")
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			//internal server error
+			log.Println("tokenCheckMiddleware : internal server error")
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 		if !token.Valid {
@@ -91,20 +91,20 @@ func tokenCheckMiddleware(next http.Handler) http.Handler {
 func (c *studentController) GetAllStudents(w http.ResponseWriter, r *http.Request) {
 	log.Println("Get students called")
 	//create bucket
-	students := []studentmodel.Student{}
+	students := []model.Student{}
 
 	//calling service method to get all students
 	if err := c.studentService.GetAllStudents(&students); err != nil {
 		log.Println("Get students unsuccessful")
 		log.Println(err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 
 	//converting struct to json type and sending back json
 	if studentsJSON, err := json.Marshal(students); err != nil {
 		log.Println("Get students : JSON marshall unsuccessful")
 		log.Println(err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	} else {
 		log.Println("Get students successful")
 		w.Write(studentsJSON)
@@ -114,7 +114,7 @@ func (c *studentController) GetAllStudents(w http.ResponseWriter, r *http.Reques
 func (c *studentController) GetStudent(w http.ResponseWriter, r *http.Request) {
 	log.Println("Get student called")
 	//create bucket
-	student := studentmodel.Student{}
+	student := model.Student{}
 
 	//getting id from query param
 	params := mux.Vars(r)
@@ -124,14 +124,14 @@ func (c *studentController) GetStudent(w http.ResponseWriter, r *http.Request) {
 	if err := c.studentService.GetStudent(&student, studentID); err != nil {
 		log.Println("Get student unsuccessful")
 		log.Println(err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 
 	//converting struct to json type and sending back json
 	if studentsJSON, err := json.Marshal(student); err != nil {
 		log.Println("Get student : JSON marshall unsuccessful")
 		log.Println(err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	} else {
 		log.Println("Get student successful")
 		w.Write(studentsJSON)
@@ -141,7 +141,7 @@ func (c *studentController) GetStudent(w http.ResponseWriter, r *http.Request) {
 func (c *studentController) AddStudent(w http.ResponseWriter, r *http.Request) {
 	log.Println("Add student called")
 	//create bucket
-	student := &studentmodel.Student{}
+	student := &model.Student{}
 
 	//read student data from response body
 	responseBody, err := ioutil.ReadAll(r.Body)
@@ -164,7 +164,7 @@ func (c *studentController) AddStudent(w http.ResponseWriter, r *http.Request) {
 	if err := c.studentService.AddStudent(student); err != nil {
 		log.Println("Add student unsuccessful")
 		log.Println(err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	} else {
 		log.Println("Add student successful")
 		w.Write([]byte(student.ID.String()))
@@ -174,7 +174,7 @@ func (c *studentController) AddStudent(w http.ResponseWriter, r *http.Request) {
 func (c *studentController) UpdateStudent(w http.ResponseWriter, r *http.Request) {
 	log.Println("Update student called")
 	//create bucket
-	student := &studentmodel.Student{}
+	student := &model.Student{}
 
 	//getting id from query param
 	params := mux.Vars(r)
@@ -201,7 +201,7 @@ func (c *studentController) UpdateStudent(w http.ResponseWriter, r *http.Request
 	if err := c.studentService.UpdateStudent(student, studentID); err != nil {
 		log.Println("Update student unsuccessful")
 		log.Println(err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	} else {
 		log.Println("Update student successful")
 		w.Write([]byte(student.ID.String()))
@@ -211,7 +211,7 @@ func (c *studentController) UpdateStudent(w http.ResponseWriter, r *http.Request
 func (c *studentController) DeleteStudent(w http.ResponseWriter, r *http.Request) {
 	log.Println("Delete student called")
 	//create bucket
-	student := &studentmodel.Student{}
+	student := &model.Student{}
 
 	//getting id from query param
 	params := mux.Vars(r)
@@ -221,7 +221,7 @@ func (c *studentController) DeleteStudent(w http.ResponseWriter, r *http.Request
 	if err := c.studentService.DeleteStudent(student, studentID); err != nil {
 		log.Println("Delete student unsuccessful")
 		log.Println(err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	} else {
 		log.Println("Delete student successful")
 		w.Write([]byte(studentID))

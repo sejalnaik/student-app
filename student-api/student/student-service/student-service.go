@@ -5,8 +5,8 @@ import (
 	"errors"
 
 	"github.com/jinzhu/gorm"
+	"github.com/sejalnaik/student-app/model"
 	"github.com/sejalnaik/student-app/repository"
-	model "github.com/sejalnaik/student-app/student/student-model"
 	"github.com/sejalnaik/student-app/utility"
 )
 
@@ -42,7 +42,7 @@ func (s *StudentService) GetStudent(student *model.Student, studentID string) er
 
 	//give query processor for where
 	queryProcessors := []repository.QueryProcessor{}
-	queryProcessors = append(queryProcessors, repository.WhereById(studentID))
+	queryProcessors = append(queryProcessors, repository.Where("id=?", studentID))
 
 	//call get repository method to get one student
 	if err := s.repository.Get(uow, student, queryProcessors); err != nil {
@@ -72,10 +72,9 @@ func (s *StudentService) AddStudent(student *model.Student) error {
 	if err := s.repository.Add(uow, student); err != nil {
 		uow.Complete()
 		return err
-	} else {
-		uow.Commit()
-		return nil
 	}
+	uow.Commit()
+	return nil
 }
 
 func (s *StudentService) UpdateStudent(student *model.Student, studentID string) error {
@@ -91,7 +90,7 @@ func (s *StudentService) UpdateStudent(student *model.Student, studentID string)
 
 	//give query processor for where
 	queryProcessors := []repository.QueryProcessor{}
-	queryProcessors = append(queryProcessors, repository.WhereById(studentID))
+	queryProcessors = append(queryProcessors, repository.Where("id=?", studentID))
 
 	//convert student struct to map
 	studentMap := utility.ConvertStructStudentToMap(student)
@@ -100,10 +99,9 @@ func (s *StudentService) UpdateStudent(student *model.Student, studentID string)
 	if err := s.repository.Update(uow, student, studentMap, queryProcessors); err != nil {
 		uow.Complete()
 		return err
-	} else {
-		uow.Commit()
-		return nil
 	}
+	uow.Commit()
+	return nil
 }
 
 func (s *StudentService) DeleteStudent(student *model.Student, studentID string) error {
@@ -112,14 +110,13 @@ func (s *StudentService) DeleteStudent(student *model.Student, studentID string)
 
 	//give query processor for where
 	queryProcessors := []repository.QueryProcessor{}
-	queryProcessors = append(queryProcessors, repository.WhereById(studentID))
+	queryProcessors = append(queryProcessors, repository.Where("id=?", studentID))
 
 	//call delete repository method to delete one student
 	if err := s.repository.Delete(uow, student, queryProcessors); err != nil {
 		uow.Complete()
 		return err
-	} else {
-		uow.Commit()
-		return nil
 	}
+	uow.Commit()
+	return nil
 }

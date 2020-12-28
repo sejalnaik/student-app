@@ -7,7 +7,7 @@ import (
 	"errors"
 	"io"
 
-	model "github.com/sejalnaik/student-app/student/student-model"
+	"github.com/sejalnaik/student-app/model"
 )
 
 const key string = "the-key-has-to-be-32-bytes-long!"
