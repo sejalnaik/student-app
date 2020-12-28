@@ -58,6 +58,14 @@ func (s *Student) Validate() url.Values {
 	if !regexpEmail.MatchString(s.Email) {
 		errs.Add("email", "Email field should be a valid email address")
 	}
+
+	//phone number must be between 10 and 12
+	if s.PhoneNumber != nil {
+		if len(*s.PhoneNumber) < 10 && len(*s.PhoneNumber) > 12 {
+			errs.Add("phoneNumber", "Phone number should be between 10 and 12")
+		}
+	}
+
 	return errs
 }
 

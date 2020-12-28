@@ -31,6 +31,7 @@ func (c *userController) CreateRoutes(r *mux.Router) {
 }
 
 func (c *userController) Login(w http.ResponseWriter, r *http.Request) {
+	log.Println("Login user called")
 	//create bucket
 	user := &model.User{}
 
@@ -71,6 +72,7 @@ func (c *userController) Login(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *userController) Register(w http.ResponseWriter, r *http.Request) {
+	log.Println("Register user called")
 	//create bucket
 	user := &model.User{}
 
@@ -91,15 +93,25 @@ func (c *userController) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//calling service method to add user and giving back id as string
-	if err := c.userService.AddUser(user); err != nil {
-		log.Println("Add user unsuccessful")
-		log.Println(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	} else {
-		log.Println("Add user successful")
-		w.Write([]byte(user.ID.String()))
+	//check if the username already exists
+	if err := c.userService.CheckIfUsernameAvailable(user); err != nil {
+		log.Println("Username is unique")
+		//calling service method to add user and giving back id as string
+		if err := c.userService.AddUser(user); err != nil {
+			log.Println("Add user unsuccessful")
+			log.Println(err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		} else {
+			log.Println("Add user successful")
+			w.Write([]byte(user.ID.String()))
+			return
+		}
 	}
+
+	//give back error if username exists
+	log.Println("Username exists")
+	http.Error(w, "Username exists", http.StatusBadRequest)
 }
 
 func createToken(user *model.User) (string, error) {

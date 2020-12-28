@@ -204,7 +204,7 @@ func (c *studentController) UpdateStudent(w http.ResponseWriter, r *http.Request
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	} else {
 		log.Println("Update student successful")
-		w.Write([]byte(student.ID.String()))
+		//w.Write([]byte(student.ID.String()))
 	}
 }
 
@@ -224,6 +224,6 @@ func (c *studentController) DeleteStudent(w http.ResponseWriter, r *http.Request
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	} else {
 		log.Println("Delete student successful")
-		w.Write([]byte(studentID))
+		//w.Write([]byte(studentID))
 	}
 }

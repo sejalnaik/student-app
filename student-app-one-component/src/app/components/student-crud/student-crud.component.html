@@ -1,3 +1,4 @@
+<app-navbar></app-navbar>
 <ngx-bootstrap-spinner></ngx-bootstrap-spinner>
 
 <button class="btn btn-primary" class = "addStudentBtn" (click) = "onAddButtonClick(studentFormModal)">ADD STUDENT</button>
@@ -154,9 +155,10 @@
                 <div class="col-sm-6">
                     <input type="text" class="form-control" id="phoneNumberId" formControlName="phoneNumber">
                 </div>
-                <div class="col-sm-4">
-                    <span *ngIf = "addForm.get('phoneNumber').invalid && (addForm.get('phoneNumber').dirty || addForm.get('phoneNumber').touched)" [class] = "'required'">Phone Number is required</span>
-                </div>
+                <span *ngIf = "addForm.get('phoneNumber').invalid && (addForm.get('phoneNumber').dirty || addForm.get('phoneNumber').touched)" [class] = "'required'">
+                    <span *ngIf="addForm.get('phoneNumber').errors.minlength">Min 10 characters are required</span>
+                    <span *ngIf="addForm.get('phoneNumber').errors.maxlength">Max 12 characters are required</span>
+                </span>
             </div>
         
             <div class="form-group">

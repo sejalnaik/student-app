@@ -79,6 +79,9 @@ export class LoginComponent implements OnInit {
       this.wrongLoginDetailsErrorShow = "none"
     },
       (err) => {
+        if (err.status == 400){
+          alert("Username already exists")
+        }
         console.log('HTTP Error', err);
       }
     );

@@ -43,7 +43,7 @@ export class StudentCrudComponent implements OnInit {
       dobTime: [null],
       gender: [null],
       email: ['', [Validators.required, Validators.pattern("^[a-zA-Z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$")]],
-      phoneNumber:[null]
+      phoneNumber:[null, [Validators.minLength(10), Validators.maxLength(12)]]
     });
   }
   
@@ -53,6 +53,11 @@ export class StudentCrudComponent implements OnInit {
    }
 
   getStudents():void{
+    if (this.cookieService.get("token") == ""){
+      alert("Not authorized to access, please login first")
+        this.router.navigate(["/login"]);
+        return
+    }
     this.studentService.getStudents().subscribe((data)=>{
       this.students = data;
       //this.spinner.hide();
@@ -82,11 +87,21 @@ export class StudentCrudComponent implements OnInit {
   }
 
   onAddButtonClick(studentFormModal):void{
+    if (this.cookieService.get("token") == ""){
+      alert("Not authorized to access, please login first")
+        this.router.navigate(["/login"]);
+        return
+    }
     this.setAddAction()
     this.openStudentFormModal(studentFormModal)
   }
 
   onUpdateButtonClick(id:string, studentFormModal):void{
+    if (this.cookieService.get("token") == ""){
+      alert("Not authorized to access, please login first")
+        this.router.navigate(["/login"]);
+        return
+    }
     this.prepopulate(id)
     this.openStudentFormModal(studentFormModal)
   }
@@ -181,7 +196,7 @@ export class StudentCrudComponent implements OnInit {
       this.studentService.updateStudent(this.studentAPI).subscribe((data)=>{
         this.modalRef.close();
         this.getStudents();
-        alert("Student updated with id :" + data); 
+        alert("Student updated"); 
       },
       (err) => {
         this.spinner.hide();
@@ -196,11 +211,16 @@ export class StudentCrudComponent implements OnInit {
     }
 
     deleteStudent(id:string):void{
+      if (this.cookieService.get("token") == ""){
+        alert("Not authorized to access, please login first")
+          this.router.navigate(["/login"]);
+          return
+      }
       if(confirm("Are you sure to delete?")) {
         this.studentService.deleteStudent(id).subscribe((data)=>{
           this.spinner.show()
           this.getStudents();
-          alert("Student deleted with id :" + data);
+          alert("Student deleted");
         },
         (err) => {
           this.spinner.hide();

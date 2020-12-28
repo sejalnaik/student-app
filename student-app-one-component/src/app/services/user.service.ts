@@ -2,13 +2,14 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { User } from "../classes/user";
+import { CookieService } from 'ngx-cookie-service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
   
-  constructor(private httpClient:HttpClient){}
+  constructor(private httpClient:HttpClient, private cookieService: CookieService){}
   baseUrl:string = "http://localhost:8080";
 
   login(user:User):Observable<User>{

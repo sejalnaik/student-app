@@ -71,3 +71,21 @@ func (s *UserService) AddUser(user *model.User) error {
 	uow.Commit()
 	return nil
 }
+
+func (s *UserService) CheckIfUsernameAvailable(userToBeChecked *model.User) error {
+	//create unit of work
+	uow := repository.NewUnitOfWork(s.db, true)
+
+	//create a new instance to store user to be got from database
+	userFromDatabase := &model.User{}
+
+	//give query processor for where
+	queryProcessors := []repository.QueryProcessor{}
+	queryProcessors = append(queryProcessors, repository.Where("username=?", userToBeChecked.Username))
+
+	//call get repository method to get one user
+	if err := s.repository.Get(uow, userFromDatabase, queryProcessors); err != nil {
+		return err
+	}
+	return nil
+}
