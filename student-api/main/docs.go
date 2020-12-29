@@ -1,6 +1,6 @@
 // Package classification Student API
 //
-// This API is made for the craete, read, update and delete operations to be done on the student database
+// This API is made for the create, read, update and delete operations to be done on the student database
 //
 //     Schemes: http
 //     BasePath: /api/students

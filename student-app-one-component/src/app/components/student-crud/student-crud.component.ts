@@ -30,9 +30,13 @@ export class StudentCrudComponent implements OnInit {
     private modalService: NgbModal,
     private spinner: NgxSpinnerService,
     private cookieService: CookieService
-    ) { 
-      this.formBuild();
-  }
+    ) { }
+
+  ngOnInit(): void {
+    this.spinner.show();
+    this.getStudents();
+    this.formBuild();
+   }
 
   formBuild(){
     this.addForm = this.formBuilder.group({
@@ -46,11 +50,6 @@ export class StudentCrudComponent implements OnInit {
       phoneNumber:[null, [Validators.minLength(10), Validators.maxLength(12)]]
     });
   }
-  
-  ngOnInit(): void {
-    this.spinner.show();
-    this.getStudents();
-   }
 
   getStudents():void{
     if (this.cookieService.get("token") == ""){
@@ -75,7 +74,6 @@ export class StudentCrudComponent implements OnInit {
   }
 
   validate():void{
-  
     if(this.addForm.valid){
       if(this.addOrUpdateAction == "add"){
         this.addStudent();
@@ -89,8 +87,8 @@ export class StudentCrudComponent implements OnInit {
   onAddButtonClick(studentFormModal):void{
     if (this.cookieService.get("token") == ""){
       alert("Not authorized to access, please login first")
-        this.router.navigate(["/login"]);
-        return
+      this.router.navigate(["/login"]);
+      return
     }
     this.setAddAction()
     this.openStudentFormModal(studentFormModal)
@@ -99,8 +97,8 @@ export class StudentCrudComponent implements OnInit {
   onUpdateButtonClick(id:string, studentFormModal):void{
     if (this.cookieService.get("token") == ""){
       alert("Not authorized to access, please login first")
-        this.router.navigate(["/login"]);
-        return
+      this.router.navigate(["/login"]);
+      return
     }
     this.prepopulate(id)
     this.openStudentFormModal(studentFormModal)
@@ -213,10 +211,10 @@ export class StudentCrudComponent implements OnInit {
     deleteStudent(id:string):void{
       if (this.cookieService.get("token") == ""){
         alert("Not authorized to access, please login first")
-          this.router.navigate(["/login"]);
-          return
+        this.router.navigate(["/login"]);
+        return
       }
-      if(confirm("Are you sure to delete?")) {
+      if(confirm("Are you sure you want to delete?")) {
         this.studentService.deleteStudent(id).subscribe((data)=>{
           this.spinner.show()
           this.getStudents();
