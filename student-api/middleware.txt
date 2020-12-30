@@ -1,0 +1,88 @@
+func tokenCheckMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Println("tokenCheckMiddleware called")
+
+		//get token string from header
+		tokenString := r.Header.Get("token")
+
+		//if token not present send "not authorized to access"
+		if tokenString == "" {
+			log.Println("Token is not present, access not allowed")
+			http.Error(w, "Token is not present, access not allowed", http.StatusUnauthorized)
+			return
+		}
+
+		//trim inverted commas from the token
+		//tokenString = tokenString[1 : len(tokenString)-1]
+
+		//create empty claims
+		claims := &model.Claims{}
+
+		//parse the tokenstring to get the token
+		token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+				return nil, fmt.Errorf("Error while parsing token")
+			}
+			return []byte(model.JwtKey), nil
+		})
+		log.Println("Token!!!!!!!!!!!!!!!!!!!!")
+		log.Println(token)
+		if err != nil {
+			if err == jwt.ErrSignatureInvalid {
+				//token is invalid
+				log.Println("tokenCheckMiddleware : Token is invalid")
+				log.Println(err)
+				http.Error(w, err.Error(), http.StatusUnauthorized)
+				return
+			}
+			//internal server error
+			log.Println("tokenCheckMiddleware : internal server error while parsing")
+			log.Println(err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		/*
+			//add 30 minutes to expiration time
+			expirationTime := time.Now().Add(30 * time.Minute)
+			claims.ExpiresAt = expirationTime.Unix()
+
+			//create new token
+			newToken := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+			newTokenString, err := newToken.SignedString([]byte(model.JwtKey))
+			if err != nil {
+				log.Println("tokenCheckMiddleware : internal server error while creating")
+				log.Println(err)
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+
+			//pass it to the next handler
+			context.Set(r, "token", newTokenString)
+		*/
+		if !token.Valid {
+			//token is invalid
+			log.Println("tokenCheckMiddleware : Token is invalid")
+			http.Error(w, err.Error(), http.StatusUnauthorized)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
+
+
+
+// swagger:operation GET /students GetStudent GetStudent
+	// Get all students data
+	// ---
+	// produces:
+	// - application/json
+	// responses:
+	//   '200':
+	//     description: student object array
+	//     content:
+	//       application/json:
+	//         schema:
+	//          type: array
+	//   '500':
+	//     description: Internal server error

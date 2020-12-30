@@ -12,8 +12,8 @@ export class UserService {
   constructor(private httpClient:HttpClient, private cookieService: CookieService){}
   baseUrl:string = "http://localhost:8080";
 
-  login(user:User):Observable<User>{
-    return this.httpClient.post<User>(this.baseUrl + "/login", user, {responseType:'text' as 'json'});
+  login(user:User):Observable<any>{
+    return this.httpClient.post<any>(this.baseUrl + "/login", user, {responseType:'text' as 'json'});
    }
 
    register(user:User):Observable<User>{

@@ -58,8 +58,9 @@ export class StudentCrudComponent implements OnInit {
         return
     }
     this.studentService.getStudents().subscribe((data)=>{
-      this.students = data;
+      this.students = data.body;
       //this.spinner.hide();
+     // this.cookieService.set("token", data.headers.get("token"))
     },
     (err) => {
       this.spinner.hide();
@@ -118,7 +119,10 @@ export class StudentCrudComponent implements OnInit {
       this.spinner.show()
       this.modalRef.close();
       this.getStudents();
-      alert("Student added with id :" + data);
+      alert("Student added with id :" + data.body);
+      if (data.headers.get("token") != null){
+        this.cookieService.set("token", data.headers.get("token"));
+      }
     },
       (err) => {
         this.spinner.hide();
@@ -153,14 +157,14 @@ export class StudentCrudComponent implements OnInit {
       this.id = id;
       this.studentService.getStudent(id).subscribe((data)=>{
         this.addForm.patchValue({
-          name: data.name,
-          rollNo: data.rollNo,
-          age: data.age,
-          dob: data.dob,
-          dobTime: data.dobTime,
-          email: data.email,
-          gender: data.isMale,
-          phoneNumber:data.phoneNumber
+          name: data.body.name,
+          rollNo: data.body.rollNo,
+          age: data.body.age,
+          dob: data.body.dob,
+          dobTime: data.body.dobTime,
+          email: data.body.email,
+          gender: data.body.isMale,
+          phoneNumber:data.body.phoneNumber
         });
         this.spinner.hide()
       },

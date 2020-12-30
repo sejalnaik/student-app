@@ -1,0 +1,33 @@
+basePath: /
+consumes:
+- application/json
+info:
+  description: Example Swagger spec.
+  title: Student API
+  version: 1.0.0
+paths:
+  /students:
+    get:
+      description: Get all students data
+      operationId: GetStudent
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: student object array
+        "500":
+          description: Internal server error
+      tags:
+      - GetStudent
+produces:
+- application/json
+schemes:
+- http
+security:
+- api_key: []
+securityDefinitions:
+  api_key:
+    in: header
+    name: token
+    type: apiKey
+swagger: "2.0"

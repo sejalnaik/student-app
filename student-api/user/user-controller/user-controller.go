@@ -116,7 +116,7 @@ func (c *userController) Register(w http.ResponseWriter, r *http.Request) {
 
 func createToken(user *model.User) (string, error) {
 	//set expiration time for cookie
-	expirationTime := time.Now().Add(5 * time.Minute)
+	expirationTime := time.Now().Add(30 * time.Minute)
 
 	//create a claim for the token
 	claims := &model.Claims{

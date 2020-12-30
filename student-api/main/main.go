@@ -1,3 +1,26 @@
+// Student API
+//
+// Example Swagger spec.
+//
+//	Schemes: http
+//	BasePath: /
+//	Version: 1.0.0
+//
+//	Consumes:
+//	- application/json
+//
+//	Produces:
+//	- application/json
+//
+//     Security:
+//     - api_key:
+//
+//     SecurityDefinitions:
+//     api_key:
+//          type: apiKey
+//          name: token
+//          in: header
+// swagger:meta
 package main
 
 import (

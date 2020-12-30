@@ -14,36 +14,36 @@ export class StudentService {
     private httpClient:HttpClient,
     private cookieService: CookieService
     ){}
-  baseUrl:string = "http://localhost:8080/api/students";
+  baseUrl:string = "http://localhost:8080/students";
 
-  getStudents():Observable<Student[]>{
+  getStudents():Observable<any>{
     //create header instance
     let httpHeaders:HttpHeaders = new HttpHeaders()
     
     //add token to header from cookie
     httpHeaders =  httpHeaders.append("token", this.cookieService.get("token"));
 
-    return this.httpClient.get<Student[]>(this.baseUrl, {'headers' : httpHeaders});
+    return this.httpClient.get<any>(this.baseUrl, {'headers' : httpHeaders, observe: "response"});
   }
   
-  addStudent(student:Student):Observable<Student>{
+  addStudent(student:Student):Observable<any>{
     //create header instance
     let httpHeaders:HttpHeaders = new HttpHeaders()
     
     //add token to header from cookie
     httpHeaders =  httpHeaders.append("token", this.cookieService.get("token"));
 
-    return this.httpClient.post<Student>(this.baseUrl, student, {'headers':httpHeaders, responseType:'text' as 'json'});
+    return this.httpClient.post<any>(this.baseUrl, student, {'headers':httpHeaders, responseType:'text' as 'json', observe: "response"});
   }
 
-  getStudent(id:string):Observable<Student>{
+  getStudent(id:string):Observable<any>{
     //create header instance
     let httpHeaders:HttpHeaders = new HttpHeaders()
     
     //add token to header from cookie
     httpHeaders =  httpHeaders.append("token", this.cookieService.get("token"));
 
-    return this.httpClient.get<Student>(this.baseUrl + "/" + id, {'headers' : httpHeaders});
+    return this.httpClient.get<any>(this.baseUrl + "/" + id, {'headers' : httpHeaders, observe: "response"});
   }
 
   updateStudent(student:Student):Observable<Student>{

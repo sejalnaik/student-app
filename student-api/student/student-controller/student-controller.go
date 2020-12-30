@@ -9,6 +9,7 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/mux"
+	"github.com/urfave/negroni"
 
 	"github.com/sejalnaik/student-app/model"
 	service "github.com/sejalnaik/student-app/student/student-service"
@@ -25,71 +26,112 @@ func NewStudentController(studentService *service.StudentService) *studentContro
 }
 
 func (c *studentController) CreateRoutes(r *mux.Router) {
-	//create subrouter
-	apiRoutes := r.PathPrefix("/api").Subrouter()
-	//token check middleware
-	apiRoutes.Use(tokenCheckMiddleware)
-	//get students
-	apiRoutes.HandleFunc("/students", c.GetAllStudents).Methods("GET")
-	//get one student
-	apiRoutes.HandleFunc("/students/{studentID}", c.GetStudent).Methods("GET")
-	//add student
-	apiRoutes.HandleFunc("/students", c.AddStudent).Methods("POST")
-	//update student
-	apiRoutes.HandleFunc("/students/{studentID}", c.UpdateStudent).Methods("PUT")
-	//delete student
-	apiRoutes.HandleFunc("/students/{studentID}", c.DeleteStudent).Methods("DELETE")
+	//create route for get students
+	r.HandleFunc("/students", c.GetAllStudents).Methods("GET")
+
+	//create route for get student
+	r.HandleFunc("/students/{studentID}", c.GetStudent).Methods("GET")
+
+	//create route for add student
+	nAddStudent := negroni.New()
+	nAddStudent.Use(negroni.HandlerFunc(tokenCheckMiddleware))
+	nAddStudent.UseHandlerFunc(c.AddStudent)
+	r.Handle("/students", nAddStudent).Methods("POST")
+
+	//create route for update student
+	nUpdateStudent := negroni.New()
+	nUpdateStudent.Use(negroni.HandlerFunc(tokenCheckMiddleware))
+	nUpdateStudent.UseHandlerFunc(c.UpdateStudent)
+	r.Handle("/students/{studentID}", nUpdateStudent).Methods("PUT")
+
+	//create route for delete student
+	nDeleteStudent := negroni.New()
+	nDeleteStudent.Use(negroni.HandlerFunc(tokenCheckMiddleware))
+	nDeleteStudent.UseHandlerFunc(c.DeleteStudent)
+	r.Handle("/students/{studentID}", nDeleteStudent).Methods("DELETE")
 }
 
-func tokenCheckMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Println("tokenCheckMiddleware called")
+func tokenCheckMiddleware(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
+	log.Println("tokenCheckMiddleware called")
 
-		//get token string from header
-		tokenString := r.Header.Get("token")
+	//get token string from header
+	tokenString := r.Header.Get("token")
 
-		//if token not present send "not authorized to access"
-		if tokenString == "" {
-			log.Println("Token is not present, access not allowed")
-			http.Error(w, "Token is not present, access not allowed", http.StatusUnauthorized)
-			return
+	//if token not present send "not authorized to access"
+	if tokenString == "" {
+		log.Println("Token is not present, access not allowed")
+		http.Error(w, "Token is not present, access not allowed", http.StatusUnauthorized)
+		return
+	}
+
+	//trim inverted commas from the token
+	//tokenString = tokenString[1 : len(tokenString)-1]
+
+	//create empty claims
+	claims := &model.Claims{}
+
+	//parse the tokenstring to get the token
+	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("Error while parsing token")
 		}
+		return []byte(model.JwtKey), nil
+	})
 
-		//trim inverted commas from the token
-		tokenString = tokenString[1 : len(tokenString)-1]
-
-		//parse the tokenstring to get the token
-		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, fmt.Errorf("Error while parsing token")
-			}
-			return []byte(model.JwtKey), nil
-		})
-		if err != nil {
-			if err == jwt.ErrSignatureInvalid {
-				//token is invalid
-				log.Println("tokenCheckMiddleware : Token is invalid")
-				log.Println(err)
-				http.Error(w, err.Error(), http.StatusUnauthorized)
-				return
-			}
-			//internal server error
-			log.Println("tokenCheckMiddleware : internal server error")
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		if !token.Valid {
+	if err != nil {
+		if err == jwt.ErrSignatureInvalid {
 			//token is invalid
 			log.Println("tokenCheckMiddleware : Token is invalid")
+			log.Println(err)
 			http.Error(w, err.Error(), http.StatusUnauthorized)
 			return
 		}
-		next.ServeHTTP(w, r)
-	})
+		//internal server error
+		log.Println("tokenCheckMiddleware : internal server error while parsing")
+		log.Println(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	/*
+		//add 30 minutes to expiration time
+		expirationTime := time.Now().Add(30 * time.Minute)
+		claims.ExpiresAt = expirationTime.Unix()
+
+		//create new token
+		newToken := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+		newTokenString, err := newToken.SignedString([]byte(model.JwtKey))
+		if err != nil {
+			log.Println("tokenCheckMiddleware : internal server error while creating")
+			log.Println(err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		//pass it to the next handler
+		context.Set(r, "token", newTokenString)
+	*/
+	if !token.Valid {
+		//token is invalid
+		log.Println("tokenCheckMiddleware : Token is invalid")
+		http.Error(w, err.Error(), http.StatusUnauthorized)
+		return
+	}
+	next.ServeHTTP(w, r)
 }
 
 func (c *studentController) GetAllStudents(w http.ResponseWriter, r *http.Request) {
 	log.Println("Get students called")
+	/*
+		//get token from context set by middleware
+		tokenString := context.Get(r, "token")
+
+		//set header only if token is set in middleware
+		if tokenString != nil {
+			//set header of the request to take the token
+			w.Header().Add("Access-Control-Expose-Headers", "token")
+			w.Header().Set("token", tokenString.(string))
+		}
+	*/
 	//create bucket
 	students := []model.Student{}
 
@@ -113,6 +155,17 @@ func (c *studentController) GetAllStudents(w http.ResponseWriter, r *http.Reques
 
 func (c *studentController) GetStudent(w http.ResponseWriter, r *http.Request) {
 	log.Println("Get student called")
+	/*
+		//get token from context set by middleware
+		tokenString := context.Get(r, "token")
+
+		//set header only if token is set in middleware
+		if tokenString != nil {
+			//set header of the request to take the token
+			w.Header().Add("Access-Control-Expose-Headers", "token")
+			w.Header().Set("token", tokenString.(string))
+		}
+	*/
 	//create bucket
 	student := model.Student{}
 
@@ -140,6 +193,17 @@ func (c *studentController) GetStudent(w http.ResponseWriter, r *http.Request) {
 
 func (c *studentController) AddStudent(w http.ResponseWriter, r *http.Request) {
 	log.Println("Add student called")
+	/*
+		//get token from context set by middleware
+		tokenString := context.Get(r, "token")
+
+		//set header only if token is set in middleware
+		if tokenString != nil {
+			//set header of the request to take the token
+			w.Header().Add("Access-Control-Expose-Headers", "token")
+			w.Header().Set("token", tokenString.(string))
+		}
+	*/
 	//create bucket
 	student := &model.Student{}
 
@@ -173,6 +237,17 @@ func (c *studentController) AddStudent(w http.ResponseWriter, r *http.Request) {
 
 func (c *studentController) UpdateStudent(w http.ResponseWriter, r *http.Request) {
 	log.Println("Update student called")
+	/*
+		//get token from context set by middleware
+		tokenString := context.Get(r, "token")
+
+		//set header only if token is set in middleware
+		if tokenString != nil {
+			//set header of the request to take the token
+			w.Header().Add("Access-Control-Expose-Headers", "token")
+			w.Header().Set("token", tokenString.(string))
+		}
+	*/
 	//create bucket
 	student := &model.Student{}
 
@@ -210,6 +285,17 @@ func (c *studentController) UpdateStudent(w http.ResponseWriter, r *http.Request
 
 func (c *studentController) DeleteStudent(w http.ResponseWriter, r *http.Request) {
 	log.Println("Delete student called")
+	/*
+		//get token from context set by middleware
+		tokenString := context.Get(r, "token")
+
+		//set header only if token is set in middleware
+		if tokenString != nil {
+			//set header of the request to take the token
+			w.Header().Add("Access-Control-Expose-Headers", "token")
+			w.Header().Set("token", tokenString.(string))
+		}
+	*/
 	//create bucket
 	student := &model.Student{}
 

@@ -53,10 +53,10 @@ export class LoginComponent implements OnInit {
       
       //set time for cookie
       const dateNow = new Date();
-      dateNow.setMinutes(dateNow.getMinutes() + 5);
+      dateNow.setMinutes(dateNow.getMinutes() + 30);
       
       //create cookie with the token
-      this.cookieService.set("token", JSON.stringify(data), dateNow)
+      this.cookieService.set("token", data, dateNow)
       
       //redirect to list
       this.router.navigate(["/list"]);
