@@ -43,6 +43,14 @@ import (
 	usercontroller "github.com/sejalnaik/student-app/user/user-controller"
 
 	userservice "github.com/sejalnaik/student-app/user/user-service"
+
+	bookcontroller "github.com/sejalnaik/student-app/book/book-controller"
+
+	bookservice "github.com/sejalnaik/student-app/book/book-service"
+
+	bookissuescontroller "github.com/sejalnaik/student-app/book-issues/book-issues-controller"
+
+	bookissuesservice "github.com/sejalnaik/student-app/book-issues/book-issues-service"
 )
 
 func main() {
@@ -54,7 +62,9 @@ func main() {
 		fmt.Print(err)
 	}
 	log.Println("DB connection established")
-	db.AutoMigrate(&model.Student{}, &model.User{})
+	db.AutoMigrate(&model.Student{}, &model.User{}, &model.Book{}, &model.BookIssue{})
+	db.Model(&model.BookIssue{}).AddForeignKey("book_id", "books(id)", "CASCADE", "CASCADE")
+	db.Model(&model.BookIssue{}).AddForeignKey("student_id", "students(id)", "CASCADE", "CASCADE")
 
 	//create router
 	r := mux.NewRouter()
@@ -91,6 +101,24 @@ func main() {
 
 	//create user routes
 	userController.CreateRoutes(r)
+
+	//create book service
+	bookService := bookservice.NewBookService(repository, db)
+
+	//create book controller
+	bookController := bookcontroller.NewBookController(bookService)
+
+	//create book routes
+	bookController.CreateRoutes(r)
+
+	//create book issue service
+	bookissuesservice := bookissuesservice.NewBookIssuesService(repository, db)
+
+	//create book issue controller
+	bookissuescontroller := bookissuescontroller.NewBookIssuesController(bookissuesservice)
+
+	//create book issue routes
+	bookissuescontroller.CreateRoutes(r)
 
 	//listen to port 8080
 	log.Fatal(server.ListenAndServe())

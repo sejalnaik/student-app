@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Validators, FormBuilder, FormControl } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Student } from 'src/app/classes/student';
+import { bookIssues, Student, book } from 'src/app/classes/student';
 import { StudentService } from 'src/app/services/student.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { NgxSpinnerService } from "ngx-spinner";
@@ -15,6 +15,7 @@ import { CookieService } from 'ngx-cookie-service';
 export class StudentCrudComponent implements OnInit {
 
   students:Student[] = [];
+  bookIssues:bookIssues[] = []
 
   id:string;
   addForm:any;
@@ -38,10 +39,10 @@ export class StudentCrudComponent implements OnInit {
   ngOnInit(): void {
     this.spinner.show();
     this.getStudents();
-    this.formBuild();
+    this.createStudentForm();
    }
 
-  formBuild(){
+  createStudentForm(){
     this.addForm = this.formBuilder.group({
       rollNo: [null, Validators.min(0)],
       name: ['', [Validators.required,  Validators.pattern("^[a-zA-Z_ ]+$")]],
@@ -53,6 +54,8 @@ export class StudentCrudComponent implements OnInit {
       phoneNumber:[null, [Validators.minLength(10), Validators.maxLength(12)]]
     });
   }
+
+  
 
   getStudents():void{
     this.studentService.getStudents().subscribe((data)=>{
@@ -102,9 +105,9 @@ export class StudentCrudComponent implements OnInit {
       if(this.addOrUpdateAction == "add"){
         this.addStudent();
       }
-      else{
+      /*else{
         this.updateStudent();
-      }
+      }*/
     }
   }
 
@@ -137,7 +140,8 @@ export class StudentCrudComponent implements OnInit {
                       isMale:this.addForm.get('gender').value, 
                       dob:this.addForm.get('dob').value,
                       dobTime:this.addForm.get('dobTime').value,
-                      phoneNumber:this.addForm.get('phoneNumber').value};
+                      phoneNumber:this.addForm.get('phoneNumber').value,
+                      bookIssues: this.bookIssues};
     this.studentService.addStudent(this.studentAPI).subscribe(data=>{
       this.spinner.show()
       this.modalRef.close();
@@ -169,13 +173,13 @@ export class StudentCrudComponent implements OnInit {
     }
 
     setAddAction():void{
-      this.formBuild();
+      this.createStudentForm();
       this.addOrUpdateAction = "add";
     }
 
     prepopulate(id:string):void{
       this.spinner.show()
-      this.formBuild();
+      this.createStudentForm();
       this.addOrUpdateAction = "update";
       this.id = id;
       this.studentService.getStudent(id).subscribe((data)=>{
@@ -189,6 +193,8 @@ export class StudentCrudComponent implements OnInit {
           gender: data.body.isMale,
           phoneNumber:data.body.phoneNumber
         });
+        console.log("In get studnet:bookissues" + data.body.bookIssues)
+        console.log("In get studnet:dob" + data.body.dob)
         this.spinner.hide()
       },
       (err) => {
@@ -198,7 +204,7 @@ export class StudentCrudComponent implements OnInit {
       });
     }
 
-    updateStudent():void{
+    /*updateStudent():void{
       this.spinner.show()
       this.studentAPI = {
         id:this.id, 
@@ -228,7 +234,7 @@ export class StudentCrudComponent implements OnInit {
         }
         alert(err.error)
       });
-    }
+    }*/
 
     deleteStudent(id:string):void{
       /*if (this.cookieService.get("token") == ""){
@@ -254,15 +260,6 @@ export class StudentCrudComponent implements OnInit {
         });
       }
     }
-
-    /*dateEmptyToNull(studentAPI:Student):void{
-      if (studentAPI.dob == ""){
-        studentAPI.dob = null
-      }
-      if (studentAPI.dobTime == ""){
-        studentAPI.dobTime = null
-      }
-    }*/
 
     openStudentFormModal(studentFormModal: any):void {
       this.modalRef = this.modalService.open(studentFormModal, { ariaLabelledBy: 'modal-basic-title', backdrop: 'static', size: 'xl' });

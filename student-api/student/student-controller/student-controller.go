@@ -196,6 +196,8 @@ func (c *studentController) GetStudent(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	} else {
 		log.Println("Get student successful")
+		log.Println("Inside get student controller!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+		log.Println("studentHson :", studentsJSON)
 		w.Write(studentsJSON)
 	}
 }
@@ -232,6 +234,9 @@ func (c *studentController) AddStudent(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, er.Error(), http.StatusBadRequest)
 		return
 	}
+
+	log.Println("Inside add student cotroller!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+	log.Println(student)
 
 	//calling service method to add student and giving back id as string
 	if err := c.studentService.AddStudent(student); err != nil {

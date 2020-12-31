@@ -20,6 +20,7 @@ type Student struct {
 	DOB         *string `gorm:"type:date" json:"dob"`
 	DOBTIME     *string `gorm:"type:datetime" json:"dobTime"`
 	PhoneNumber *string `gorm:"type:varchar(12)" json:"phoneNumber"`
+	BookIssues  []BookIssue
 }
 
 type Base struct {
@@ -117,4 +118,34 @@ func (s *User) Validate() url.Values {
 
 type Result struct {
 	Total int64
+}
+
+type Book struct {
+	Base
+	Name       string `gorm:"type:varchar(150)" json:"name"`
+	TotalStock *int   `gorm:"type:int" json:"totalStock"`
+}
+
+func (s *Book) Validate() url.Values {
+	errs := url.Values{}
+
+	//username is required
+	if s.Name == "" {
+		errs.Add("name", "name is required")
+	}
+
+	//Password is required
+	if s.TotalStock == nil {
+		errs.Add("totalStock", "TotalStock is required")
+	}
+	return errs
+}
+
+type BookIssue struct {
+	Base
+	BookID    uuid.UUID `gorm:"type:varchar(36)" json:"bookId"`
+	StudentID uuid.UUID `gorm:"type:varchar(36)" json:"studentId"`
+	Book      Book      `json:"book"`
+	IssueDate string    `gorm:"type:datetime" json:"issueDate"`
+	Returned  bool      `gorm:"type:tinyint" json:"returned"`
 }

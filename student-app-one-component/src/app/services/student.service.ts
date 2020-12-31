@@ -20,13 +20,8 @@ export class StudentService {
   diffAgeRecordCount:string = "http://localhost:8080/diff-age-record-count"
 
   getStudents():Observable<any>{
-    //create header instance
-    let httpHeaders:HttpHeaders = new HttpHeaders()
-    
-    //add token to header from cookie
-    httpHeaders =  httpHeaders.append("token", this.cookieService.get("token"));
 
-    return this.httpClient.get<any>(this.baseUrl, {'headers' : httpHeaders, observe: "response"});
+    return this.httpClient.get<any>(this.baseUrl, {observe: "response"});
   }
   
   addStudent(student:Student):Observable<any>{
@@ -40,13 +35,8 @@ export class StudentService {
   }
 
   getStudent(id:string):Observable<any>{
-    //create header instance
-    let httpHeaders:HttpHeaders = new HttpHeaders()
-    
-    //add token to header from cookie
-    httpHeaders =  httpHeaders.append("token", this.cookieService.get("token"));
 
-    return this.httpClient.get<any>(this.baseUrl + "/" + id, {'headers' : httpHeaders, observe: "response"});
+    return this.httpClient.get<any>(this.baseUrl + "/" + id, {observe: "response"});
   }
 
   updateStudent(student:Student):Observable<Student>{

@@ -29,6 +29,17 @@ func Where(condition string, args ...interface{}) QueryProcessor {
 	}
 }
 
+func PreloadAssociations(preloadAssociations []string) QueryProcessor {
+	return func(db *gorm.DB, out interface{}) (*gorm.DB, error) {
+		if preloadAssociations != nil {
+			for _, association := range preloadAssociations {
+				db = db.Preload(association)
+			}
+		}
+		return db, nil
+	}
+}
+
 func (r *gormRepository) Get(uow *UnitOfWork, out interface{}, queryProcessors []QueryProcessor) error {
 	db := uow.DB
 	if queryProcessors != nil {

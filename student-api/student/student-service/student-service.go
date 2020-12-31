@@ -43,6 +43,7 @@ func (s *StudentService) GetStudent(student *model.Student, studentID string) er
 	//give query processor for where
 	queryProcessors := []repository.QueryProcessor{}
 	queryProcessors = append(queryProcessors, repository.Where("id=?", studentID))
+	queryProcessors = append(queryProcessors, repository.PreloadAssociations([]string{"BookIssues"}))
 
 	//call get repository method to get one student
 	if err := s.repository.Get(uow, student, queryProcessors); err != nil {
