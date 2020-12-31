@@ -150,3 +150,18 @@ func (s *StudentService) DiffOfAgeAndRollNo(diff *model.Result) error {
 		return nil
 	}
 }
+
+func (s *StudentService) DiffOfAgeAndRecordCount(diff *model.Result) error {
+	//create unit of work
+	uow := repository.NewUnitOfWork(s.db, true)
+
+	//set condition for select query
+	condition := "sum(age) - count(*) as total"
+
+	//call select repository method to calculate diff of age and rollno of all students
+	if err := s.repository.Select(uow, condition, diff); err != nil {
+		return err
+	} else {
+		return nil
+	}
+}

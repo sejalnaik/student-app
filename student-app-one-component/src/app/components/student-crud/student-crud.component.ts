@@ -24,6 +24,7 @@ export class StudentCrudComponent implements OnInit {
   loadingMessage: string = "Getting students";
   sumOfAgeAndRollNo:number;
   diffOfAgeAndRollNo:number;
+  diffOfAgeAndRecordCount:number;
   
   constructor(
     private studentService:StudentService, 
@@ -76,6 +77,16 @@ export class StudentCrudComponent implements OnInit {
 
     this.studentService.diffOfAgeAndRollNo().subscribe((data)=>{
       this.diffOfAgeAndRollNo = (JSON.parse(data))["Total"];
+      //this.spinner.hide();
+    },
+    (err) => {
+      this.spinner.hide();
+      console.log('HTTP Error', err);
+      alert(err.error)
+    });
+
+    this.studentService.diffOfAgeAndRecordCount().subscribe((data)=>{
+      this.diffOfAgeAndRecordCount = (JSON.parse(data))["Total"];
       //this.spinner.hide();
     },
     (err) => {

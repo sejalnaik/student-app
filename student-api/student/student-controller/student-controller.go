@@ -55,6 +55,9 @@ func (c *studentController) CreateRoutes(r *mux.Router) {
 
 	//create route for diff of age and rollno
 	r.HandleFunc("/diff", c.DiffOfAgeAndRollNo).Methods("GET")
+
+	//create route for diff of age and record count
+	r.HandleFunc("/diff-age-record-count", c.DiffOfAgeAndRecordCount).Methods("GET")
 }
 
 func tokenCheckMiddleware(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
@@ -350,6 +353,29 @@ func (c *studentController) DiffOfAgeAndRollNo(w http.ResponseWriter, r *http.Re
 	var diff model.Result
 
 	if err := c.studentService.DiffOfAgeAndRollNo(&diff); err != nil {
+		log.Println("Diff unsuccessful")
+		log.Println(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	//converting struct to json type and sending back json
+	if sumJSON, err := json.Marshal(&diff); err != nil {
+		log.Println("Difff : JSON marshall unsuccessful")
+		log.Println(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	} else {
+		log.Println("Diff successful")
+		w.Write(sumJSON)
+	}
+}
+
+func (c *studentController) DiffOfAgeAndRecordCount(w http.ResponseWriter, r *http.Request) {
+	log.Println("DiffOfAgeAndRecordCount called")
+
+	//decalre a sum variable for sum
+	var diff model.Result
+
+	if err := c.studentService.DiffOfAgeAndRecordCount(&diff); err != nil {
 		log.Println("Diff unsuccessful")
 		log.Println(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
