@@ -121,12 +121,30 @@ func (s *StudentService) DeleteStudent(student *model.Student, studentID string)
 	return nil
 }
 
-func (s *StudentService) SumOfAgeAndRollNo(sum *model.SumResult) error {
+func (s *StudentService) SumOfAgeAndRollNo(sum *model.Result) error {
 	//create unit of work
 	uow := repository.NewUnitOfWork(s.db, true)
 
+	//set condition for select query
+	condition := "sum(roll_no+age) as total"
+
 	//call select repository method to calculate sum of age and rollno of all students
-	if err := s.repository.Select(uow, sum); err != nil {
+	if err := s.repository.Select(uow, condition, sum); err != nil {
+		return err
+	} else {
+		return nil
+	}
+}
+
+func (s *StudentService) DiffOfAgeAndRollNo(diff *model.Result) error {
+	//create unit of work
+	uow := repository.NewUnitOfWork(s.db, true)
+
+	//set condition for select query
+	condition := "sum(roll_no-age) as total"
+
+	//call select repository method to calculate diff of age and rollno of all students
+	if err := s.repository.Select(uow, condition, diff); err != nil {
 		return err
 	} else {
 		return nil

@@ -16,6 +16,7 @@ export class StudentService {
     ){}
   baseUrl:string = "http://localhost:8080/students";
   sumUrl:string = "http://localhost:8080/sum";
+  diffUrl:string = "http://localhost:8080/diff";
 
   getStudents():Observable<any>{
     //create header instance
@@ -68,6 +69,10 @@ export class StudentService {
 
   sumOfAgeAndRollNo(){
     return this.httpClient.get<any>(this.sumUrl, {responseType:'text' as 'json'});
+  }
+
+  diffOfAgeAndRollNo(){
+    return this.httpClient.get<any>(this.diffUrl, {responseType:'text' as 'json'});
   }
 }
 

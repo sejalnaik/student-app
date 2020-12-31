@@ -115,6 +115,6 @@ func (s *User) Validate() url.Values {
 	return errs
 }
 
-type SumResult struct {
+type Result struct {
 	Total int64
 }

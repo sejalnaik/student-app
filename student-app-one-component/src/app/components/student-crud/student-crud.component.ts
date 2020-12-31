@@ -23,6 +23,7 @@ export class StudentCrudComponent implements OnInit {
   modalRef: any;
   loadingMessage: string = "Getting students";
   sumOfAgeAndRollNo:number;
+  diffOfAgeAndRollNo:number;
   
   constructor(
     private studentService:StudentService, 
@@ -72,7 +73,18 @@ export class StudentCrudComponent implements OnInit {
       console.log('HTTP Error', err);
       alert(err.error)
     });
+
+    this.studentService.diffOfAgeAndRollNo().subscribe((data)=>{
+      this.diffOfAgeAndRollNo = (JSON.parse(data))["Total"];
+      //this.spinner.hide();
+    },
+    (err) => {
+      this.spinner.hide();
+      console.log('HTTP Error', err);
+      alert(err.error)
+    });
   }
+  
 
   validate():void{
     if(this.addForm.valid){

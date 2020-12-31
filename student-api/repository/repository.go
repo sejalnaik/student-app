@@ -17,7 +17,7 @@ type Repository interface {
 	Add(uow *UnitOfWork, entity interface{}) error
 	Update(uow *UnitOfWork, entity interface{}, entityMap map[string]interface{}, queryProcessors []QueryProcessor) error
 	Delete(uow *UnitOfWork, entity interface{}, queryProcessors []QueryProcessor) error
-	Select(uow *UnitOfWork, entity interface{}) error
+	Select(uow *UnitOfWork, condition string, entity interface{}) error
 }
 
 type QueryProcessor func(db *gorm.DB, out interface{}) (*gorm.DB, error)
@@ -112,10 +112,10 @@ func (r *gormRepository) Delete(uow *UnitOfWork, entity interface{}, queryProces
 	return nil
 }
 
-func (r *gormRepository) Select(uow *UnitOfWork, entity interface{}) error {
+func (r *gormRepository) Select(uow *UnitOfWork, condition string, entity interface{}) error {
 	db := uow.DB
 
-	if err := db.Debug().Model(&model.Student{}).Select("sum(roll_no+age) as total").Scan(entity).Error; err != nil {
+	if err := db.Debug().Model(&model.Student{}).Select(condition).Scan(entity).Error; err != nil {
 		return err
 	}
 	return nil
