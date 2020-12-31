@@ -15,6 +15,7 @@ export class StudentService {
     private cookieService: CookieService
     ){}
   baseUrl:string = "http://localhost:8080/students";
+  sumUrl:string = "http://localhost:8080/sum";
 
   getStudents():Observable<any>{
     //create header instance
@@ -63,6 +64,10 @@ export class StudentService {
     httpHeaders =  httpHeaders.append("token", this.cookieService.get("token"));
 
     return this.httpClient.delete<Student>(this.baseUrl + "/" + id, {'headers':httpHeaders, responseType:'text' as 'json'});
+  }
+
+  sumOfAgeAndRollNo(){
+    return this.httpClient.get<any>(this.sumUrl, {responseType:'text' as 'json'});
   }
 }
 

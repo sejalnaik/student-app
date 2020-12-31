@@ -120,3 +120,15 @@ func (s *StudentService) DeleteStudent(student *model.Student, studentID string)
 	uow.Commit()
 	return nil
 }
+
+func (s *StudentService) SumOfAgeAndRollNo(sum *model.SumResult) error {
+	//create unit of work
+	uow := repository.NewUnitOfWork(s.db, true)
+
+	//call select repository method to calculate sum of age and rollno of all students
+	if err := s.repository.Select(uow, sum); err != nil {
+		return err
+	} else {
+		return nil
+	}
+}

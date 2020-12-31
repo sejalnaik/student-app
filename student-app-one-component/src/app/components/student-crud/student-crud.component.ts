@@ -22,6 +22,7 @@ export class StudentCrudComponent implements OnInit {
   addOrUpdateAction:string;
   modalRef: any;
   loadingMessage: string = "Getting students";
+  sumOfAgeAndRollNo:number;
   
   constructor(
     private studentService:StudentService, 
@@ -52,24 +53,23 @@ export class StudentCrudComponent implements OnInit {
   }
 
   getStudents():void{
-    if (this.cookieService.get("token") == ""){
-      alert("Not authorized to access, please login first")
-        this.router.navigate(["/login"]);
-        return
-    }
     this.studentService.getStudents().subscribe((data)=>{
       this.students = data.body;
       //this.spinner.hide();
-     // this.cookieService.set("token", data.headers.get("token"))
     },
     (err) => {
       this.spinner.hide();
       console.log('HTTP Error', err);
-      if (err.status == 401){
-        alert("Session has expired, please login first")
-        this.router.navigate(["/login"]);
-        return
-      }
+      alert(err.error)
+    });
+
+    this.studentService.sumOfAgeAndRollNo().subscribe((data)=>{
+      this.sumOfAgeAndRollNo = (JSON.parse(data))["Total"];
+      //this.spinner.hide();
+    },
+    (err) => {
+      this.spinner.hide();
+      console.log('HTTP Error', err);
       alert(err.error)
     });
   }
@@ -86,21 +86,21 @@ export class StudentCrudComponent implements OnInit {
   }
 
   onAddButtonClick(studentFormModal):void{
-    if (this.cookieService.get("token") == ""){
+    /*if (this.cookieService.get("token") == ""){
       alert("Not authorized to access, please login first")
       this.router.navigate(["/login"]);
       return
-    }
+    }*/
     this.setAddAction()
     this.openStudentFormModal(studentFormModal)
   }
 
   onUpdateButtonClick(id:string, studentFormModal):void{
-    if (this.cookieService.get("token") == ""){
+    /*if (this.cookieService.get("token") == ""){
       alert("Not authorized to access, please login first")
       this.router.navigate(["/login"]);
       return
-    }
+    }*/
     this.prepopulate(id)
     this.openStudentFormModal(studentFormModal)
   }
@@ -171,11 +171,6 @@ export class StudentCrudComponent implements OnInit {
       (err) => {
         this.spinner.hide();
         console.log('HTTP Error', err);
-        if (err.status == 401){
-          alert("Session has expired, please login first")
-          this.router.navigate(["/login"]);
-          return
-        }
         alert(err.error)
       });
     }
@@ -213,11 +208,11 @@ export class StudentCrudComponent implements OnInit {
     }
 
     deleteStudent(id:string):void{
-      if (this.cookieService.get("token") == ""){
+      /*if (this.cookieService.get("token") == ""){
         alert("Not authorized to access, please login first")
         this.router.navigate(["/login"]);
         return
-      }
+      }*/
       if(confirm("Are you sure you want to delete?")) {
         this.studentService.deleteStudent(id).subscribe((data)=>{
           this.spinner.show()

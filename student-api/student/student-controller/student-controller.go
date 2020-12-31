@@ -49,6 +49,8 @@ func (c *studentController) CreateRoutes(r *mux.Router) {
 	nDeleteStudent.Use(negroni.HandlerFunc(tokenCheckMiddleware))
 	nDeleteStudent.UseHandlerFunc(c.DeleteStudent)
 	r.Handle("/students/{studentID}", nDeleteStudent).Methods("DELETE")
+
+	r.HandleFunc("/sum", c.SumOfAgeAndRollNo).Methods("GET")
 }
 
 func tokenCheckMiddleware(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
@@ -311,5 +313,28 @@ func (c *studentController) DeleteStudent(w http.ResponseWriter, r *http.Request
 	} else {
 		log.Println("Delete student successful")
 		//w.Write([]byte(studentID))
+	}
+}
+
+func (c *studentController) SumOfAgeAndRollNo(w http.ResponseWriter, r *http.Request) {
+	log.Println("SumOfAgeAndRollNo called")
+
+	//decalre a sum variable for sum
+	var sum model.SumResult
+
+	if err := c.studentService.SumOfAgeAndRollNo(&sum); err != nil {
+		log.Println("Sum unsuccessful")
+		log.Println(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	//converting struct to json type and sending back json
+	if sumJSON, err := json.Marshal(&sum); err != nil {
+		log.Println("Sum : JSON marshall unsuccessful")
+		log.Println(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	} else {
+		log.Println("sum successful")
+		w.Write(sumJSON)
 	}
 }
