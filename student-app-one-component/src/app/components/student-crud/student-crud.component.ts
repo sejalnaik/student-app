@@ -1,11 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { Validators, FormBuilder, FormControl } from '@angular/forms';
 import { Router } from '@angular/router';
-import { bookIssues, Student, book } from 'src/app/classes/student';
+import { BookIssues, Student, Book } from 'src/app/classes/student';
 import { StudentService } from 'src/app/services/student.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { NgxSpinnerService } from "ngx-spinner";
 import { CookieService } from 'ngx-cookie-service';
+import { BookService } from 'src/app/services/book.service';
+import * as moment from 'moment';
+import { Moment } from 'moment';
 
 @Component({
   selector: 'app-student-crud',
@@ -15,10 +18,11 @@ import { CookieService } from 'ngx-cookie-service';
 export class StudentCrudComponent implements OnInit {
 
   students:Student[] = [];
-  bookIssues:bookIssues[] = []
+  books:Book[] = []
 
   id:string;
-  addForm:any;
+  studentForm:any;
+  bookIssueForm:any;
   studentAPI:Student;
   addOrUpdateAction:string;
   modalRef: any;
@@ -28,7 +32,8 @@ export class StudentCrudComponent implements OnInit {
   diffOfAgeAndRecordCount:number;
   
   constructor(
-    private studentService:StudentService, 
+    private studentService:StudentService,
+    private bookService:BookService,  
     private router:Router, 
     private formBuilder:FormBuilder,
     private modalService: NgbModal,
@@ -39,11 +44,12 @@ export class StudentCrudComponent implements OnInit {
   ngOnInit(): void {
     this.spinner.show();
     this.getStudents();
+    this.getBooks();
     this.createStudentForm();
    }
 
   createStudentForm(){
-    this.addForm = this.formBuilder.group({
+    this.studentForm = this.formBuilder.group({
       rollNo: [null, Validators.min(0)],
       name: ['', [Validators.required,  Validators.pattern("^[a-zA-Z_ ]+$")]],
       age: [null, Validators.min(0)],
@@ -55,7 +61,17 @@ export class StudentCrudComponent implements OnInit {
     });
   }
 
-  
+  createBookIssueForm(){
+    this.bookIssueForm = this.formBuilder.group({
+      issueDate: ['', [Validators.required,  Validators.pattern("^[a-zA-Z_ ]+$")]],
+      age: [null, Validators.min(0)],
+      dob: [null],
+      dobTime: [null],
+      gender: [null],
+      email: ['', [Validators.required, Validators.pattern("^[a-zA-Z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$")]],
+      phoneNumber:[null, [Validators.minLength(10), Validators.maxLength(12)]]
+    });
+  }
 
   getStudents():void{
     this.studentService.getStudents().subscribe((data)=>{
@@ -68,7 +84,7 @@ export class StudentCrudComponent implements OnInit {
       alert(err.error)
     });
 
-    this.studentService.sumOfAgeAndRollNo().subscribe((data)=>{
+    /*this.studentService.sumOfAgeAndRollNo().subscribe((data)=>{
       this.sumOfAgeAndRollNo = (JSON.parse(data))["Total"];
       //this.spinner.hide();
     },
@@ -96,12 +112,22 @@ export class StudentCrudComponent implements OnInit {
       this.spinner.hide();
       console.log('HTTP Error', err);
       alert(err.error)
-    });
+    });*/
   }
   
+  getBooks(){
+    this.bookService.getBooks().subscribe((data)=>{
+      this.books = data.body;
+    },
+    (err) => {
+      this.spinner.hide();
+      console.log('HTTP Error', err);
+      alert(err.error)
+    });
+  }
 
   validate():void{
-    if(this.addForm.valid){
+    if(this.studentForm.valid){
       if(this.addOrUpdateAction == "add"){
         this.addStudent();
       }
@@ -121,7 +147,7 @@ export class StudentCrudComponent implements OnInit {
     this.openStudentFormModal(studentFormModal)
   }
 
-  onUpdateButtonClick(id:string, studentFormModal):void{
+  onUpdateButtonClick(id:string, studentFormModal:any):void{
     /*if (this.cookieService.get("token") == ""){
       alert("Not authorized to access, please login first")
       this.router.navigate(["/login"]);
@@ -131,17 +157,88 @@ export class StudentCrudComponent implements OnInit {
     this.openStudentFormModal(studentFormModal)
   }
 
+  onBookIssuesButtonClick(id:string, bookIssuesModal:any):void{
+    this.studentService.getStudent(id).subscribe((data)=>{
+      this.studentAPI = {id:id, 
+        name: data.body.name,
+        rollNo: data.body.rollNo,
+        age: data.body.age,
+        dob: data.body.dob,
+        dobTime: data.body.dobTime,
+        email: data.body.email,
+        isMale: data.body.isMale,
+        phoneNumber:data.body.phoneNumber,
+        bookIssues:data.body.bookIssues};
+        this.openBookIssuesModal(bookIssuesModal)
+    },
+    (err) => {
+      this.spinner.hide();
+      console.log('HTTP Error', err);
+      alert(err.error)
+    });
+  }
+
+  onIssueBookButtonClick(book:Book){
+    let now: Moment;
+    now = moment(new Date());
+    let nowInString:string = now.format();
+    nowInString = nowInString.substring(0,19); 
+     this.studentAPI.bookIssues.push({id:null,
+      bookId:null,
+      studentId:this.studentAPI.id,
+      book:book,
+      issueDate:nowInString,
+      returned:false});
+    this.studentService.updateStudent(this.studentAPI).subscribe((data)=>{
+        this.getStudents();
+        alert("Student updated"); 
+      },
+      (err) => {
+        this.spinner.hide();
+        console.log('HTTP Error', err);
+        if (err.status == 401){
+          alert("Session has expired, please login first")
+          this.router.navigate(["/login"]);
+          return
+        }
+        alert(err.error)
+      });
+  }
+
+  onReturnedButtonClick(bookIssueId:string){
+    for(let i = 0; i < this.studentAPI.bookIssues.length; i++){
+      if(bookIssueId == this.studentAPI.bookIssues[i].id){
+        this.studentAPI.bookIssues[i].returned = true;
+      }
+    }
+    this.studentService.updateStudent(this.studentAPI).subscribe((data)=>{
+      this.getStudents();
+      alert("Student updated"); 
+    },
+    (err) => {
+      this.spinner.hide();
+      console.log('HTTP Error', err);
+      if (err.status == 401){
+        alert("Session has expired, please login first")
+        this.router.navigate(["/login"]);
+        return
+      }
+      alert(err.error)
+    });
+  }
+
   addStudent():void{
+    let bookIssues:BookIssues[] = []
     this.studentAPI = {id:null, 
-                      rollNo:this.addForm.get('rollNo').value, 
-                      name:this.addForm.get('name').value, 
-                      age:this.addForm.get('age').value, 
-                      email:this.addForm.get('email').value, 
-                      isMale:this.addForm.get('gender').value, 
-                      dob:this.addForm.get('dob').value,
-                      dobTime:this.addForm.get('dobTime').value,
-                      phoneNumber:this.addForm.get('phoneNumber').value,
-                      bookIssues: this.bookIssues};
+                      rollNo:this.studentForm.get('rollNo').value, 
+                      name:this.studentForm.get('name').value, 
+                      age:this.studentForm.get('age').value, 
+                      email:this.studentForm.get('email').value, 
+                      isMale:this.studentForm.get('gender').value, 
+                      dob:this.studentForm.get('dob').value,
+                      dobTime:this.studentForm.get('dobTime').value,
+                      phoneNumber:this.studentForm.get('phoneNumber').value,
+                      bookIssues: bookIssues};
     this.studentService.addStudent(this.studentAPI).subscribe(data=>{
       this.spinner.show()
       this.modalRef.close();
@@ -164,10 +261,10 @@ export class StudentCrudComponent implements OnInit {
     }
 
     dobChange():void{
-      let dobDate:Date = new Date(this.addForm.controls['dob'].value);
+      let dobDate:Date = new Date(this.studentForm.controls['dob'].value);
       let diff = (new Date().getTime() - dobDate.getTime());
       let ageTotal = Math.trunc(diff/ (1000 * 3600 * 24 *365));
-      this.addForm.patchValue({
+      this.studentForm.patchValue({
         age: ageTotal,
       });
     }
@@ -183,7 +280,7 @@ export class StudentCrudComponent implements OnInit {
       this.addOrUpdateAction = "update";
       this.id = id;
       this.studentService.getStudent(id).subscribe((data)=>{
-        this.addForm.patchValue({
+        this.studentForm.patchValue({
           name: data.body.name,
           rollNo: data.body.rollNo,
           age: data.body.age,
@@ -193,8 +290,6 @@ export class StudentCrudComponent implements OnInit {
           gender: data.body.isMale,
           phoneNumber:data.body.phoneNumber
         });
-        console.log("In get studnet:bookissues" + data.body.bookIssues)
-        console.log("In get studnet:dob" + data.body.dob)
         this.spinner.hide()
       },
       (err) => {
@@ -208,14 +303,14 @@ export class StudentCrudComponent implements OnInit {
       this.spinner.show()
       this.studentAPI = {
         id:this.id, 
-        rollNo:this.addForm.get('rollNo').value, 
-        name:this.addForm.get('name').value, 
-        age:this.addForm.get('age').value, 
-        email:this.addForm.get('email').value, 
-        isMale:this.addForm.get('gender').value, 
-        dob:this.addForm.get('dob').value,
-        dobTime:this.addForm.get('dobTime').value,
-        phoneNumber:this.addForm.get('phoneNumber').value
+        rollNo:this.studentForm.get('rollNo').value, 
+        name:this.studentForm.get('name').value, 
+        age:this.studentForm.get('age').value, 
+        email:this.studentForm.get('email').value, 
+        isMale:this.studentForm.get('gender').value, 
+        dob:this.studentForm.get('dob').value,
+        dobTime:this.studentForm.get('dobTime').value,
+        phoneNumber:this.studentForm.get('phoneNumber').value
       };
 
       //this.dateEmptyToNull(this.studentAPI)
@@ -263,6 +358,13 @@ export class StudentCrudComponent implements OnInit {
 
     openStudentFormModal(studentFormModal: any):void {
       this.modalRef = this.modalService.open(studentFormModal, { ariaLabelledBy: 'modal-basic-title', backdrop: 'static', size: 'xl' });
+      /*this.modalRef.result.then((result) => {
+      }, (reason) => {
+      });*/
+    }
+
+    openBookIssuesModal(bookIssuesModal: any):void {
+      this.modalRef = this.modalService.open(bookIssuesModal, { ariaLabelledBy: 'modal-basic-title', backdrop: 'static', size: 'xl' });
       /*this.modalRef.result.then((result) => {
       }, (reason) => {
       });*/

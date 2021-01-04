@@ -19,6 +19,13 @@ func ConvertStudentTimeToDate(student *model.Student) {
 		student.DOB = &tempDOB
 	}
 
+	tempStudent := *student
+	for i := 0; i < len(tempStudent.BookIssues); i++ {
+		tempIssueDate := tempStudent.BookIssues[i].IssueDate
+		tempIssueDate = tempIssueDate[:19]
+		student.BookIssues[i].IssueDate = tempIssueDate
+	}
+
 	if student.DOBTIME != nil {
 		tempDOBTIME := *student.DOBTIME
 		tempDOBTIME = tempDOBTIME[:19]

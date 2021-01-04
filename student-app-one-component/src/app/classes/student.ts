@@ -1,18 +1,24 @@
-export interface book{
+export interface Book{
     id:string,
     name:string,
     totalStock:number,
 }
 
-export interface bookIssues{
+export interface BookWithAvailable{
+    id:string,
+    name:string,
+    totalStock:number,
+    available:number
+}
+
+export interface BookIssues{
     id:string,
     bookId:string,
     studentId:string,
-    book:book,
+    book:Book,
     issueDate:string,
     returned:boolean
 }
-
 
 export interface Student {
     id:string,
@@ -24,5 +30,5 @@ export interface Student {
     email:string,
     isMale:boolean
     phoneNumber:string
-    bookIssues:bookIssues[]
+    bookIssues:BookIssues[]
 }

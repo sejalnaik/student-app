@@ -54,7 +54,6 @@ import (
 )
 
 func main() {
-
 	//create db
 	db, err := gorm.Open("mysql", "root:root@tcp(localhost:4040)/student_app?charset=utf8&parseTime=True&loc=Local")
 	defer db.Close()

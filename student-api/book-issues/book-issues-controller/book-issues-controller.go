@@ -22,11 +22,14 @@ func NewBookIssuesController(bookIssuesService *service.BookIssuesService) *Book
 }
 
 func (c *BookIssuesController) CreateRoutes(r *mux.Router) {
-	//create route for get books
+	//create route for get book issues
 	r.HandleFunc("/book-issues", c.GetAllBooksIssues).Methods("GET")
 
-	//create route for adding one book
+	//create route for adding one book issue
 	r.HandleFunc("/book-issues", c.AddBookIssue).Methods("POST")
+
+	//create route for getting one book issue
+	r.HandleFunc("/book-issues/{bookIssueID}", c.GetBookIssue).Methods("GET")
 }
 
 func (c *BookIssuesController) GetAllBooksIssues(w http.ResponseWriter, r *http.Request) {
@@ -84,5 +87,35 @@ func (c *BookIssuesController) AddBookIssue(w http.ResponseWriter, r *http.Reque
 	} else {
 		log.Println("Add book issue successful")
 		w.Write([]byte(bookIssue.ID.String()))
+	}
+}
+
+func (c *BookIssuesController) GetBookIssue(w http.ResponseWriter, r *http.Request) {
+	log.Println("Get book issue called")
+
+	//create bucket
+	bookIssue := model.BookIssue{}
+
+	//getting id from query param
+	params := mux.Vars(r)
+	bookIssueID := (params["bookIssueID"])
+
+	log.Println("Book issue id", bookIssueID)
+
+	//calling service method to get book issue
+	if err := c.bookIssuesService.GetBookIssue(&bookIssue, bookIssueID); err != nil {
+		log.Println("Get book issue unsuccessful")
+		log.Println(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	//converting struct to json type and sending back json
+	if bookIssueJSON, err := json.Marshal(bookIssue); err != nil {
+		log.Println("Get book issue : JSON marshall unsuccessful")
+		log.Println(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	} else {
+		log.Println("Get book issue successful")
+		w.Write(bookIssueJSON)
 	}
 }

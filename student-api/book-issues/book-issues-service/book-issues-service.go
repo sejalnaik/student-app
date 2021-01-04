@@ -27,7 +27,7 @@ func (s *BookIssuesService) GetAllBookIssues(bookIssues *[]model.BookIssue) erro
 	queryProcessors = append(queryProcessors, repository.PreloadAssociations([]string{"Book"}))
 
 	//call get repository method to get book issues
-	if err := s.repository.Get(uow, bookIssues, nil); err != nil {
+	if err := s.repository.Get(uow, bookIssues, queryProcessors); err != nil {
 		return err
 	} else {
 		return nil
@@ -37,14 +37,20 @@ func (s *BookIssuesService) GetAllBookIssues(bookIssues *[]model.BookIssue) erro
 func (s *BookIssuesService) AddBookIssue(bookIssue *model.BookIssue) error {
 	//create unit of work
 	uow := repository.NewUnitOfWork(s.db, true)
-	/*
-		//check student validation
-		if validErrs := student.Validate(); len(validErrs) > 0 {
-			err := map[string]interface{}{"validationError": validErrs}
-			errorJSONString, _ := json.Marshal(err)
-			return errors.New(string(errorJSONString))
-		}
-	*/
+
+	//create bucket for book
+	book := model.Book{}
+
+	//call get repo to get book
+	//give query processor for where
+	queryProcessors := []repository.QueryProcessor{}
+	queryProcessors = append(queryProcessors, repository.Where("id=?", bookIssue.BookID))
+	if err := s.repository.Get(uow, &book, queryProcessors); err != nil {
+		return err
+	}
+
+	//add book to book issue
+	bookIssue.Book = book
 
 	//call add repository method to add one book issue
 	if err := s.repository.Add(uow, bookIssue); err != nil {
@@ -53,4 +59,21 @@ func (s *BookIssuesService) AddBookIssue(bookIssue *model.BookIssue) error {
 	}
 	uow.Commit()
 	return nil
+}
+
+func (s *BookIssuesService) GetBookIssue(bookIssue *model.BookIssue, bookIssueID string) error {
+	//create unit of work
+	uow := repository.NewUnitOfWork(s.db, true)
+
+	//give query processor for where
+	queryProcessors := []repository.QueryProcessor{}
+	queryProcessors = append(queryProcessors, repository.Where("id=?", bookIssueID))
+	queryProcessors = append(queryProcessors, repository.PreloadAssociations([]string{"Book"}))
+
+	//call get repository method to get one bookIsuue
+	if err := s.repository.Get(uow, bookIssue, queryProcessors); err != nil {
+		return err
+	} else {
+		return nil
+	}
 }

@@ -12,6 +12,7 @@ import { AppComponent } from './app.component';
 import { StudentCrudComponent } from './components/student-crud/student-crud.component';
 import { StudentService } from "./services/student.service";
 import { UserService } from "./services/user.service";
+import { BookService } from "./services/book.service";
 import { HomeComponent } from './components/home/home.component';
 import { ErrorComponent } from './components/error/error.component';
 import { RoutesClass } from "./classes/route-class";
@@ -44,7 +45,8 @@ import { NavbarComponent } from './components/navbar/navbar.component';
   providers: [
     StudentService,
     UserService,
-    CookieService
+    CookieService,
+    BookService
   ],
   bootstrap: [AppComponent]
 })

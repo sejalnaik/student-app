@@ -27,23 +27,29 @@ func (c *BookController) CreateRoutes(r *mux.Router) {
 
 	//create route for adding one book
 	r.HandleFunc("/books", c.AddBook).Methods("POST")
+
+	//create route for getting one book
+	r.HandleFunc("/books/{bookID}", c.GetBook).Methods("GET")
 }
 
 func (c *BookController) GetAllBooks(w http.ResponseWriter, r *http.Request) {
 	log.Println("Get books called")
 
 	//create bucket
-	books := []model.Book{}
+	booksWithAvailable := []model.BookWithAvailable{}
 
 	//calling service method to get all books
-	if err := c.bookService.GetAllBooks(&books); err != nil {
+	if err := c.bookService.GetAllBooks(&booksWithAvailable); err != nil {
 		log.Println("Get books unsuccessful")
 		log.Println(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 
+	log.Println("Inside book controller !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+	log.Println(booksWithAvailable)
+
 	//converting struct to json type and sending back json
-	if booksJSON, err := json.Marshal(books); err != nil {
+	if booksJSON, err := json.Marshal(booksWithAvailable); err != nil {
 		log.Println("Get books : JSON marshall unsuccessful")
 		log.Println(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -84,5 +90,33 @@ func (c *BookController) AddBook(w http.ResponseWriter, r *http.Request) {
 	} else {
 		log.Println("Add book successful")
 		w.Write([]byte(book.ID.String()))
+	}
+}
+
+func (c *BookController) GetBook(w http.ResponseWriter, r *http.Request) {
+	log.Println("Get book called")
+
+	//create bucket
+	book := &model.Book{}
+
+	//getting id from query param
+	params := mux.Vars(r)
+	bookID := (params["bookID"])
+
+	//calling service method to get book
+	if err := c.bookService.GetBook(book, bookID); err != nil {
+		log.Println("Get book unsuccessful")
+		log.Println(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	//converting struct to json type and sending back json
+	if bookJSON, err := json.Marshal(book); err != nil {
+		log.Println("Get book : JSON marshall unsuccessful")
+		log.Println(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	} else {
+		log.Println("Get book successful")
+		w.Write(bookJSON)
 	}
 }

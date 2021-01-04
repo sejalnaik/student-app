@@ -3,6 +3,7 @@ package studentservice
 import (
 	"encoding/json"
 	"errors"
+	"log"
 
 	"github.com/jinzhu/gorm"
 	"github.com/sejalnaik/student-app/model"
@@ -26,8 +27,12 @@ func (s *StudentService) GetAllStudents(students *[]model.Student) error {
 	//create unit of work
 	uow := repository.NewUnitOfWork(s.db, true)
 
+	//give query processor for preload
+	queryProcessors := []repository.QueryProcessor{}
+	queryProcessors = append(queryProcessors, repository.PreloadAssociations([]string{"BookIssues.Book", "BookIssues"}))
+
 	//call get repository method to get students
-	if err := s.repository.Get(uow, students, nil); err != nil {
+	if err := s.repository.Get(uow, students, queryProcessors); err != nil {
 		return err
 	} else {
 		//to trim dob and dobtime
@@ -40,10 +45,10 @@ func (s *StudentService) GetStudent(student *model.Student, studentID string) er
 	//create unit of work
 	uow := repository.NewUnitOfWork(s.db, true)
 
-	//give query processor for where
+	//give query processor for where and preload
 	queryProcessors := []repository.QueryProcessor{}
 	queryProcessors = append(queryProcessors, repository.Where("id=?", studentID))
-	queryProcessors = append(queryProcessors, repository.PreloadAssociations([]string{"BookIssues"}))
+	queryProcessors = append(queryProcessors, repository.PreloadAssociations([]string{"BookIssues.Book", "BookIssues"}))
 
 	//call get repository method to get one student
 	if err := s.repository.Get(uow, student, queryProcessors); err != nil {
@@ -88,6 +93,9 @@ func (s *StudentService) UpdateStudent(student *model.Student, studentID string)
 		errorJSONString, _ := json.Marshal(err)
 		return errors.New(string(errorJSONString))
 	}
+
+	log.Println("Inside student update service!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+	log.Println(len(student.BookIssues))
 
 	//give query processor for where
 	queryProcessors := []repository.QueryProcessor{}

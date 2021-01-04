@@ -27,6 +27,7 @@
                 <th>GENDER</th>
                 <th>PHONE NUMBER</th>
                 <th>UPDATE</th>
+                <th>BOOK ISSUES</th>
                 <th>DELETE</th>
             </tr>
         </thead>
@@ -45,7 +46,8 @@
                 </ng-template>
             </td>
             <td>{{student.phoneNumber}}</td>
-            <td><button (click) = "onUpdateButtonClick(student.id, studentFormModal)" #formModalBtn data-toggle="modal" data-target="#formModal" data-backdrop="static" data-keyboard="false">UPDATE</button></td>
+            <td><button (click) = "onUpdateButtonClick(student.id, studentFormModal)">UPDATE</button></td>
+            <td><button (click) = "onBookIssuesButtonClick(student.id, bookIssuesModal)">Book isues</button></td>
             <td><button (click) = "deleteStudent(student.id)">DELETE</button></td>
         </tr>
     </table>
@@ -60,7 +62,7 @@
 
     <div class="modal-body">
         
-        <form class="form-horizontal" [formGroup]="addForm">
+        <form class="form-horizontal" [formGroup]="studentForm">
 
             <div class="form-group row">
                 <label class="control-label col-sm-2" for="rollNoId">Roll No.</label>
@@ -68,9 +70,9 @@
                     <input type="number" class="form-control" id="rollNoId" formControlName="rollNo"> 
                 </div>
                 <div class="col-sm-4">
-                    <span *ngIf = "addForm.get('rollNo').invalid && (addForm.get('rollNo').dirty || addForm.get('rollNo').touched)" [class] = "'required'">
-                        <!--<span *ngIf="addForm.get('rollNo').errors.required">RollNo is required</span>-->
-                        <span *ngIf="addForm.get('rollNo').errors.min">RollNo cannot be less than zero</span>
+                    <span *ngIf = "studentForm.get('rollNo').invalid && (studentForm.get('rollNo').dirty || studentForm.get('rollNo').touched)" [class] = "'required'">
+                        <!--<span *ngIf="studentForm.get('rollNo').errors.required">RollNo is required</span>-->
+                        <span *ngIf="studentForm.get('rollNo').errors.min">RollNo cannot be less than zero</span>
                     </span>
                 </div>
             </div>
@@ -81,9 +83,9 @@
                     <input type="text" class="form-control" id="nameId" formControlName="name">
                 </div>
                 <div class="col-sm-4">
-                    <span *ngIf = "addForm.get('name').invalid && (addForm.get('name').dirty || addForm.get('name').touched)" [class] = "'required'">
-                        <span *ngIf="addForm.get('name').errors.required">Name is required</span>
-                        <span *ngIf="addForm.get('name').errors.pattern">Name can only contain alphabets</span>
+                    <span *ngIf = "studentForm.get('name').invalid && (studentForm.get('name').dirty || studentForm.get('name').touched)" [class] = "'required'">
+                        <span *ngIf="studentForm.get('name').errors.required">Name is required</span>
+                        <span *ngIf="studentForm.get('name').errors.pattern">Name can only contain alphabets</span>
                     </span>
                 </div>
             </div>
@@ -94,7 +96,7 @@
                     <input type="date" class="form-control" id="dobId" formControlName="dob" (change) = "dobChange()">
                 </div>
                 <!--<div class="col-sm-4">
-                    <span *ngIf = "addForm.get('dob').invalid && (addForm.get('dob').dirty || addForm.get('dob').touched)" [class] = "'required'">DOB is required</span>
+                    <span *ngIf = "studentForm.get('dob').invalid && (studentForm.get('dob').dirty || studentForm.get('dob').touched)" [class] = "'required'">DOB is required</span>
                 </div>-->
             </div>
 
@@ -104,7 +106,7 @@
                     <input type="datetime-local" class="form-control" id="dobTimeId" formControlName="dobTime">
                 </div>
                 <!--<div class="col-sm-4">
-                    <span *ngIf = "addForm.get('dobTime').invalid && (addForm.get('dobTime').dirty || addForm.get('dobTime').touched)" [class] = "'required'">DOB/Time is required</span>
+                    <span *ngIf = "studentForm.get('dobTime').invalid && (studentForm.get('dobTime').dirty || studentForm.get('dobTime').touched)" [class] = "'required'">DOB/Time is required</span>
                 </div>-->
             </div>
         
@@ -114,9 +116,9 @@
                     <input type="number" class="form-control" id="ageId" formControlName="age">
                 </div>
                 <div class="col-sm-4">
-                    <span *ngIf = "addForm.get('age').invalid && (addForm.get('age').dirty || addForm.get('age').touched)" [class] = "'required'">
-                        <!--<span *ngIf="addForm.get('age').errors.required">Age is required</span>-->
-                        <span *ngIf="addForm.get('age').errors.min">Age cannot be less than zero</span>
+                    <span *ngIf = "studentForm.get('age').invalid && (studentForm.get('age').dirty || studentForm.get('age').touched)" [class] = "'required'">
+                        <!--<span *ngIf="studentForm.get('age').errors.required">Age is required</span>-->
+                        <span *ngIf="studentForm.get('age').errors.min">Age cannot be less than zero</span>
                     </span>
                 </div>
             </div>
@@ -127,9 +129,9 @@
                     <input type="text" class="form-control" id="emailId" formControlName="email">
                 </div>
                 <div class="col-sm-4">
-                    <span *ngIf = "addForm.get('email').invalid && (addForm.get('email').dirty || addForm.get('email').touched)" [class] = "'required'">
-                        <span *ngIf="addForm.get('email').errors.required">Email is required</span>
-                        <span *ngIf="addForm.get('email').errors.pattern">The email address must contain at least the '@' and the '.' character</span>
+                    <span *ngIf = "studentForm.get('email').invalid && (studentForm.get('email').dirty || studentForm.get('email').touched)" [class] = "'required'">
+                        <span *ngIf="studentForm.get('email').errors.required">Email is required</span>
+                        <span *ngIf="studentForm.get('email').errors.pattern">The email address must contain at least the '@' and the '.' character</span>
                     </span>
                 </div>
             </div>
@@ -152,7 +154,7 @@
                     
                     <!--<div class="col-sm-4">
                         <div *ngIf="addOrUpdateAction == 'add'">
-                            <span *ngIf = "addForm.get('gender').invalid && addForm.get('gender').dirty" [class] = "'required'">Gender is required</span>
+                            <span *ngIf = "studentForm.get('gender').invalid && studentForm.get('gender').dirty" [class] = "'required'">Gender is required</span>
                         </div>
                     </div>-->
                 
@@ -164,18 +166,70 @@
                 <div class="col-sm-6">
                     <input type="text" class="form-control" id="phoneNumberId" formControlName="phoneNumber">
                 </div>
-                <span *ngIf = "addForm.get('phoneNumber').invalid && (addForm.get('phoneNumber').dirty || addForm.get('phoneNumber').touched)" [class] = "'required'">
-                    <span *ngIf="addForm.get('phoneNumber').errors.minlength">Min 10 characters are required</span>
-                    <span *ngIf="addForm.get('phoneNumber').errors.maxlength">Max 12 characters are required</span>
+                <span *ngIf = "studentForm.get('phoneNumber').invalid && (studentForm.get('phoneNumber').dirty || studentForm.get('phoneNumber').touched)" [class] = "'required'">
+                    <span *ngIf="studentForm.get('phoneNumber').errors.minlength">Min 10 characters are required</span>
+                    <span *ngIf="studentForm.get('phoneNumber').errors.maxlength">Max 12 characters are required</span>
                 </span>
             </div>
         
             <div class="form-group">
-                <button [disabled]="!addForm.valid || !addForm.dirty" id = "submitButtonId" class="btn btn-primary" type="submit" (click) = "validate()">SUBMIT</button>
+                <button [disabled]="!studentForm.valid || !studentForm.dirty" id = "submitButtonId" class="btn btn-primary" type="submit" (click) = "validate()">SUBMIT</button>
             </div>
             
             </form>
+    </div>
+</ng-template>
 
-            
+<ng-template #bookIssuesModal let-modal>
+    <div class="modal-header">
+        <h4 class="modal-title">BOOK ISSUES</h4>
+        <button type="button" class="close" (click)="modal.dismiss('Cross click')">&times;</button>
+    </div>
+
+    <div class="modal-body">
+        <h1>Book Issue Table</h1>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>BOOK NAME</th>
+                    <th>BOOK ID</th>
+                    <th>ISSUE DATE</th>
+                    <th>RETURNED</th>
+                    <th>PENALTY</th>
+                    <th>UPDATE</th>
+                    <th>DELETE</th>
+                </tr>
+            </thead>
+            <tr *ngFor = "let bookIssue of studentAPI.bookIssues">
+                <td>{{bookIssue.id}}</td>
+                <td>{{bookIssue.book.name}}</td>
+                <td>{{bookIssue.book.id}}</td>
+                <td>{{bookIssue.issueDate}}</td>
+                <td><button (click) = "onReturnedButtonClick(bookIssue.id)">{{bookIssue.returned}}</button></td>
+                <td>0</td>
+                <td>UPDATE</td>
+                <td>DELETE</td>
+            </tr>
+        </table>
+        <h1>Book Inventory Table</h1>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>BOOK ID</th>
+                    <th>BOOK NAME</th>
+                    <th>TOTAL STOCK</th>
+                    <th>AVAILABLE STOCK</th>
+                    <th>ISSUE BOOK</th>
+                </tr>
+            </thead>
+            <tr *ngFor = "let book of books">
+                <td>{{book.id}}</td>
+                <td>{{book.name}}</td>
+                <td>{{book.totalStock}}</td>
+                <td>available</td>
+                <td><button (click) = "onIssueBookButtonClick(book)">ISSUE BOOK</button></td>
+            </tr>
+        </table>
     </div>
 </ng-template>
