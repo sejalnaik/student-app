@@ -207,7 +207,7 @@
                 <td>{{bookIssue.book.id}}</td>
                 <td>{{bookIssue.issueDate}}</td>
                 <td><button (click) = "onReturnedButtonClick(bookIssue.id)">{{bookIssue.returned}}</button></td>
-                <td>0</td>
+                <td>{{bookIssue.penalty}}</td>
                 <td>UPDATE</td>
                 <td>DELETE</td>
             </tr>
@@ -227,7 +227,7 @@
                 <td>{{book.id}}</td>
                 <td>{{book.name}}</td>
                 <td>{{book.totalStock}}</td>
-                <td>available</td>
+                <td>{{book.available}}</td>
                 <td><button (click) = "onIssueBookButtonClick(book)">ISSUE BOOK</button></td>
             </tr>
         </table>

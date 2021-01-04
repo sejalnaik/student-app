@@ -122,8 +122,8 @@ type Result struct {
 
 type Book struct {
 	Base
-	Name       string `gorm:"type:varchar(150)"`
-	TotalStock *int   `gorm:"type:int"`
+	Name       string `gorm:"type:varchar(150)" json:"name"`
+	TotalStock *int   `gorm:"type:int" json:"totalStock"`
 }
 
 type BookWithAvailable struct {
@@ -155,4 +155,5 @@ type BookIssue struct {
 	Book      Book      `json:"book"`
 	IssueDate string    `gorm:"type:datetime" json:"issueDate"`
 	Returned  bool      `gorm:"type:tinyint" json:"returned"`
+	Penalty   float64   `gorm:"type:decimal(10,2)" json:"penalty"`
 }

@@ -17,7 +17,8 @@ export interface BookIssues{
     studentId:string,
     book:Book,
     issueDate:string,
-    returned:boolean
+    returned:boolean,
+    penalty:number
 }
 
 export interface Student {

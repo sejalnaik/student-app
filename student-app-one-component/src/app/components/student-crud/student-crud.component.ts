@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Validators, FormBuilder, FormControl } from '@angular/forms';
 import { Router } from '@angular/router';
-import { BookIssues, Student, Book } from 'src/app/classes/student';
+import { BookIssues, Student, Book, BookWithAvailable } from 'src/app/classes/student';
 import { StudentService } from 'src/app/services/student.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { NgxSpinnerService } from "ngx-spinner";
@@ -18,7 +18,7 @@ import { Moment } from 'moment';
 export class StudentCrudComponent implements OnInit {
 
   students:Student[] = [];
-  books:Book[] = []
+  books:BookWithAvailable[] = []
 
   id:string;
   studentForm:any;
@@ -169,7 +169,27 @@ export class StudentCrudComponent implements OnInit {
         isMale: data.body.isMale,
         phoneNumber:data.body.phoneNumber,
         bookIssues:data.body.bookIssues};
-        this.openBookIssuesModal(bookIssuesModal)
+        this.openBookIssuesModal(bookIssuesModal);
+    },
+    (err) => {
+      this.spinner.hide();
+      console.log('HTTP Error', err);
+      alert(err.error)
+    });
+  }
+
+  getOneStudent(id:string){
+    this.studentService.getStudent(id).subscribe((data)=>{
+      this.studentAPI = {id:id, 
+        name: data.body.name,
+        rollNo: data.body.rollNo,
+        age: data.body.age,
+        dob: data.body.dob,
+        dobTime: data.body.dobTime,
+        email: data.body.email,
+        isMale: data.body.isMale,
+        phoneNumber:data.body.phoneNumber,
+        bookIssues:data.body.bookIssues};
     },
     (err) => {
       this.spinner.hide();
@@ -179,6 +199,15 @@ export class StudentCrudComponent implements OnInit {
   }
 
   onIssueBookButtonClick(book:Book){
+    for(let i = 0; i < this.books.length; i++){
+      if(book.id == this.books[i].id){
+        if (this.books[i].available == 0){
+          alert("Book not available for issue")
+          return
+        }
+      }
+    }
+   
     let now: Moment;
     now = moment(new Date());
     let nowInString:string = now.format();
@@ -188,9 +217,11 @@ export class StudentCrudComponent implements OnInit {
       studentId:this.studentAPI.id,
       book:book,
       issueDate:nowInString,
-      returned:false});
+      returned:false,
+      penalty:0});
     this.studentService.updateStudent(this.studentAPI).subscribe((data)=>{
-        this.getStudents();
+        this.getBooks();
+        this.getOneStudent(this.studentAPI.id);
         alert("Student updated"); 
       },
       (err) => {
@@ -209,10 +240,12 @@ export class StudentCrudComponent implements OnInit {
     for(let i = 0; i < this.studentAPI.bookIssues.length; i++){
       if(bookIssueId == this.studentAPI.bookIssues[i].id){
         this.studentAPI.bookIssues[i].returned = true;
+        this.studentAPI.bookIssues[i].penalty = 0;
       }
     }
     this.studentService.updateStudent(this.studentAPI).subscribe((data)=>{
-      this.getStudents();
+      this.getOneStudent(this.studentAPI.id);
+      this.getBooks();
       alert("Student updated"); 
     },
     (err) => {

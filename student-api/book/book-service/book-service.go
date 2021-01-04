@@ -28,9 +28,8 @@ func (s *BookService) GetAllBooks(booksWithAvailable *[]model.BookWithAvailable)
 	//give query processor for where
 	queryProcessors := []repository.QueryProcessor{}
 	queryProcessors = append(queryProcessors, repository.Model())
-	queryProcessors = append(queryProcessors, repository.Select("books.ID as id, books.name as name, MIN(total_stock) as total_stock, (MIN(total_stock) - COUNT(book_issues.returned)) AS available"))
-	queryProcessors = append(queryProcessors, repository.Joins("inner join book_issues on book_issues.book_id = books.id"))
-	queryProcessors = append(queryProcessors, repository.Where("book_issues.returned = 0"))
+	queryProcessors = append(queryProcessors, repository.Select("books.ID as id, books.name as name, MIN(total_stock) as total_stock, (MIN(total_stock) - COUNT(IF(book_issues.returned = 0, 1, NULL))) AS available"))
+	queryProcessors = append(queryProcessors, repository.Joins("left join book_issues on book_issues.book_id = books.id"))
 	queryProcessors = append(queryProcessors, repository.Group("books.id"))
 	queryProcessors = append(queryProcessors, repository.Group("books.name"))
 

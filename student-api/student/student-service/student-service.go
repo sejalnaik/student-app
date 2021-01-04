@@ -45,8 +45,16 @@ func (s *StudentService) GetStudent(student *model.Student, studentID string) er
 	//create unit of work
 	uow := repository.NewUnitOfWork(s.db, true)
 
-	//give query processor for where and preload
+	//update book issues(for updating penalty)
+	updateBookIssue := map[string]interface{}{"penalty": gorm.Expr("if(abs(DATEDIFF(issue_date, CURDATE())) > 10 and returned = 0, (abs(DATEDIFF(issue_date, CURDATE()))-10)*2.5, 0)")}
 	queryProcessors := []repository.QueryProcessor{}
+	queryProcessors = append(queryProcessors, repository.Where("student_id=?", studentID))
+	if err := s.repository.Update(uow, &model.BookIssue{}, updateBookIssue, queryProcessors); err != nil {
+		return err
+	}
+
+	//give query processor for where and preload
+	queryProcessors = []repository.QueryProcessor{}
 	queryProcessors = append(queryProcessors, repository.Where("id=?", studentID))
 	queryProcessors = append(queryProcessors, repository.PreloadAssociations([]string{"BookIssues.Book", "BookIssues"}))
 

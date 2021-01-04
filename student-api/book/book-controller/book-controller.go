@@ -45,9 +45,6 @@ func (c *BookController) GetAllBooks(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 
-	log.Println("Inside book controller !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-	log.Println(booksWithAvailable)
-
 	//converting struct to json type and sending back json
 	if booksJSON, err := json.Marshal(booksWithAvailable); err != nil {
 		log.Println("Get books : JSON marshall unsuccessful")
