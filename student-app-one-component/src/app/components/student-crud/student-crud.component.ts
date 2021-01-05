@@ -19,10 +19,10 @@ export class StudentCrudComponent implements OnInit {
 
   students:Student[] = [];
   books:BookWithAvailable[] = []
+  tempBookIssues:BookIssues[] = []
 
   id:string;
   studentForm:any;
-  bookIssueForm:any;
   studentAPI:Student;
   addOrUpdateAction:string;
   modalRef: any;
@@ -30,6 +30,7 @@ export class StudentCrudComponent implements OnInit {
   sumOfAgeAndRollNo:number;
   diffOfAgeAndRollNo:number;
   diffOfAgeAndRecordCount:number;
+  totalPenalty:number;
   
   constructor(
     private studentService:StudentService,
@@ -48,6 +49,7 @@ export class StudentCrudComponent implements OnInit {
     this.createStudentForm();
    }
 
+   //create student add/update form
   createStudentForm(){
     this.studentForm = this.formBuilder.group({
       rollNo: [null, Validators.min(0)],
@@ -61,18 +63,7 @@ export class StudentCrudComponent implements OnInit {
     });
   }
 
-  createBookIssueForm(){
-    this.bookIssueForm = this.formBuilder.group({
-      issueDate: ['', [Validators.required,  Validators.pattern("^[a-zA-Z_ ]+$")]],
-      age: [null, Validators.min(0)],
-      dob: [null],
-      dobTime: [null],
-      gender: [null],
-      email: ['', [Validators.required, Validators.pattern("^[a-zA-Z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$")]],
-      phoneNumber:[null, [Validators.minLength(10), Validators.maxLength(12)]]
-    });
-  }
-
+  //get all students
   getStudents():void{
     this.studentService.getStudents().subscribe((data)=>{
       this.students = data.body;
@@ -115,6 +106,7 @@ export class StudentCrudComponent implements OnInit {
     });*/
   }
   
+  //get all books
   getBooks(){
     this.bookService.getBooks().subscribe((data)=>{
       this.books = data.body;
@@ -126,17 +118,32 @@ export class StudentCrudComponent implements OnInit {
     });
   }
 
+  //get all penalty for a student
+  getTotalPenalty(id:string){
+    this.studentService.getStudentTotalPenalty(id).subscribe((data)=>{
+      this.totalPenalty = (JSON.parse(data))["Total"];
+      console.log("total penlaty" + this.totalPenalty);
+    },
+    (err) => {
+      this.spinner.hide();
+      console.log('HTTP Error', err);
+      alert(err.error)
+    });
+  }
+
+  //to check id add or update operation
   validate():void{
     if(this.studentForm.valid){
       if(this.addOrUpdateAction == "add"){
         this.addStudent();
       }
-      /*else{
+      else{
         this.updateStudent();
-      }*/
+      }
     }
   }
 
+  //add student button clicked
   onAddButtonClick(studentFormModal):void{
     /*if (this.cookieService.get("token") == ""){
       alert("Not authorized to access, please login first")
@@ -147,6 +154,7 @@ export class StudentCrudComponent implements OnInit {
     this.openStudentFormModal(studentFormModal)
   }
 
+  //update student buttom clicked
   onUpdateButtonClick(id:string, studentFormModal:any):void{
     /*if (this.cookieService.get("token") == ""){
       alert("Not authorized to access, please login first")
@@ -157,8 +165,10 @@ export class StudentCrudComponent implements OnInit {
     this.openStudentFormModal(studentFormModal)
   }
 
+  //book issues button clicked
   onBookIssuesButtonClick(id:string, bookIssuesModal:any):void{
     this.studentService.getStudent(id).subscribe((data)=>{
+      //set studentAPI object with values
       this.studentAPI = {id:id, 
         name: data.body.name,
         rollNo: data.body.rollNo,
@@ -169,7 +179,12 @@ export class StudentCrudComponent implements OnInit {
         isMale: data.body.isMale,
         phoneNumber:data.body.phoneNumber,
         bookIssues:data.body.bookIssues};
+
+        //open modal
         this.openBookIssuesModal(bookIssuesModal);
+
+        //get total penalty for the student
+        this.getTotalPenalty(id);
     },
     (err) => {
       this.spinner.hide();
@@ -178,8 +193,10 @@ export class StudentCrudComponent implements OnInit {
     });
   }
 
+  //get one student
   getOneStudent(id:string){
     this.studentService.getStudent(id).subscribe((data)=>{
+      //set the studentAPI object with values
       this.studentAPI = {id:id, 
         name: data.body.name,
         rollNo: data.body.rollNo,
@@ -190,6 +207,9 @@ export class StudentCrudComponent implements OnInit {
         isMale: data.body.isMale,
         phoneNumber:data.body.phoneNumber,
         bookIssues:data.body.bookIssues};
+
+        //get total penalty for the student
+        this.getTotalPenalty(id);
     },
     (err) => {
       this.spinner.hide();
@@ -198,7 +218,9 @@ export class StudentCrudComponent implements OnInit {
     });
   }
 
+  //on issue book button click
   onIssueBookButtonClick(book:Book){
+    //check if book is available
     for(let i = 0; i < this.books.length; i++){
       if(book.id == this.books[i].id){
         if (this.books[i].available == 0){
@@ -207,18 +229,30 @@ export class StudentCrudComponent implements OnInit {
         }
       }
     }
-   
+
+    //check if book is already issued
+    for(let i = 0; i < this.studentAPI.bookIssues.length; i++){
+      if((book.id == this.studentAPI.bookIssues[i].book.id) && (this.studentAPI.bookIssues[i].returned == false)){
+        alert("Book is already issued")
+        return
+      }
+    }
+    
+    //create current date and time
     let now: Moment;
     now = moment(new Date());
     let nowInString:string = now.format();
-    nowInString = nowInString.substring(0,19); 
-     this.studentAPI.bookIssues.push({id:null,
+    nowInString = nowInString.substring(0,19);
+    
+    //add book issue to existing book issues array
+    this.studentAPI.bookIssues.push({id:null,
       bookId:null,
       studentId:this.studentAPI.id,
       book:book,
       issueDate:nowInString,
       returned:false,
       penalty:0});
+
     this.studentService.updateStudent(this.studentAPI).subscribe((data)=>{
         this.getBooks();
         this.getOneStudent(this.studentAPI.id);
@@ -236,13 +270,16 @@ export class StudentCrudComponent implements OnInit {
       });
   }
 
+  //on returned button click
   onReturnedButtonClick(bookIssueId:string){
+    //make returned flag true and penalty to 0
     for(let i = 0; i < this.studentAPI.bookIssues.length; i++){
       if(bookIssueId == this.studentAPI.bookIssues[i].id){
         this.studentAPI.bookIssues[i].returned = true;
         this.studentAPI.bookIssues[i].penalty = 0;
       }
     }
+
     this.studentService.updateStudent(this.studentAPI).subscribe((data)=>{
       this.getOneStudent(this.studentAPI.id);
       this.getBooks();
@@ -260,6 +297,7 @@ export class StudentCrudComponent implements OnInit {
     });
   }
 
+  //add student
   addStudent():void{
     let bookIssues:BookIssues[] = []
     this.studentAPI = {id:null, 
@@ -293,6 +331,7 @@ export class StudentCrudComponent implements OnInit {
       });
     }
 
+    //to calculate age from date of birth
     dobChange():void{
       let dobDate:Date = new Date(this.studentForm.controls['dob'].value);
       let diff = (new Date().getTime() - dobDate.getTime());
@@ -302,11 +341,13 @@ export class StudentCrudComponent implements OnInit {
       });
     }
 
+    //set add or update student form
     setAddAction():void{
       this.createStudentForm();
       this.addOrUpdateAction = "add";
     }
 
+    //prepopulate update student form
     prepopulate(id:string):void{
       this.spinner.show()
       this.createStudentForm();
@@ -323,6 +364,8 @@ export class StudentCrudComponent implements OnInit {
           gender: data.body.isMale,
           phoneNumber:data.body.phoneNumber
         });
+        this.tempBookIssues = data.body.bookIssues;
+        console.log(data.body.bookIssues)
         this.spinner.hide()
       },
       (err) => {
@@ -332,7 +375,8 @@ export class StudentCrudComponent implements OnInit {
       });
     }
 
-    /*updateStudent():void{
+    //update student
+    updateStudent():void{
       this.spinner.show()
       this.studentAPI = {
         id:this.id, 
@@ -343,7 +387,8 @@ export class StudentCrudComponent implements OnInit {
         isMale:this.studentForm.get('gender').value, 
         dob:this.studentForm.get('dob').value,
         dobTime:this.studentForm.get('dobTime').value,
-        phoneNumber:this.studentForm.get('phoneNumber').value
+        phoneNumber:this.studentForm.get('phoneNumber').value,
+        bookIssues:this.tempBookIssues
       };
 
       //this.dateEmptyToNull(this.studentAPI)
@@ -362,8 +407,9 @@ export class StudentCrudComponent implements OnInit {
         }
         alert(err.error)
       });
-    }*/
+    }
 
+    //delete student
     deleteStudent(id:string):void{
       /*if (this.cookieService.get("token") == ""){
         alert("Not authorized to access, please login first")
@@ -389,6 +435,7 @@ export class StudentCrudComponent implements OnInit {
       }
     }
 
+    //open student add/update form modal
     openStudentFormModal(studentFormModal: any):void {
       this.modalRef = this.modalService.open(studentFormModal, { ariaLabelledBy: 'modal-basic-title', backdrop: 'static', size: 'xl' });
       /*this.modalRef.result.then((result) => {
@@ -396,6 +443,7 @@ export class StudentCrudComponent implements OnInit {
       });*/
     }
 
+    //open book issue modal
     openBookIssuesModal(bookIssuesModal: any):void {
       this.modalRef = this.modalService.open(bookIssuesModal, { ariaLabelledBy: 'modal-basic-title', backdrop: 'static', size: 'xl' });
       /*this.modalRef.result.then((result) => {

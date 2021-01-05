@@ -2,7 +2,6 @@ package repository
 
 import (
 	"github.com/jinzhu/gorm"
-	"github.com/sejalnaik/student-app/model"
 )
 
 type gormRepository struct {
@@ -17,7 +16,6 @@ type Repository interface {
 	Add(uow *UnitOfWork, entity interface{}) error
 	Update(uow *UnitOfWork, entity interface{}, entityMap map[string]interface{}, queryProcessors []QueryProcessor) error
 	Delete(uow *UnitOfWork, entity interface{}, queryProcessors []QueryProcessor) error
-	Select(uow *UnitOfWork, condition string, entity interface{}) error
 	//BookSpecial(uow *UnitOfWork, entity interface{}) error
 	Scan(uow *UnitOfWork, out interface{}, entity interface{}, queryProcessors []QueryProcessor) error
 }
@@ -148,15 +146,6 @@ func (r *gormRepository) Delete(uow *UnitOfWork, entity interface{}, queryProces
 		}
 	}
 	if err := db.Debug().Delete(entity).Error; err != nil {
-		return err
-	}
-	return nil
-}
-
-func (r *gormRepository) Select(uow *UnitOfWork, condition string, entity interface{}) error {
-	db := uow.DB
-
-	if err := db.Debug().Model(&model.Student{}).Select(condition).Scan(entity).Error; err != nil {
 		return err
 	}
 	return nil

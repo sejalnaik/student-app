@@ -3,7 +3,6 @@ package studentservice
 import (
 	"encoding/json"
 	"errors"
-	"log"
 
 	"github.com/jinzhu/gorm"
 	"github.com/sejalnaik/student-app/model"
@@ -102,9 +101,6 @@ func (s *StudentService) UpdateStudent(student *model.Student, studentID string)
 		return errors.New(string(errorJSONString))
 	}
 
-	log.Println("Inside student update service!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-	log.Println(len(student.BookIssues))
-
 	//give query processor for where
 	queryProcessors := []repository.QueryProcessor{}
 	queryProcessors = append(queryProcessors, repository.Where("id=?", studentID))
@@ -145,8 +141,12 @@ func (s *StudentService) SumOfAgeAndRollNo(sum *model.Result) error {
 	//set condition for select query
 	condition := "sum(roll_no+age) as total"
 
+	//give query processor for where
+	queryProcessors := []repository.QueryProcessor{}
+	queryProcessors = append(queryProcessors, repository.Select(condition))
+
 	//call select repository method to calculate sum of age and rollno of all students
-	if err := s.repository.Select(uow, condition, sum); err != nil {
+	if err := s.repository.Scan(uow, &model.Student{}, sum, queryProcessors); err != nil {
 		return err
 	} else {
 		return nil
@@ -160,8 +160,12 @@ func (s *StudentService) DiffOfAgeAndRollNo(diff *model.Result) error {
 	//set condition for select query
 	condition := "sum(roll_no-age) as total"
 
+	//give query processor for where
+	queryProcessors := []repository.QueryProcessor{}
+	queryProcessors = append(queryProcessors, repository.Select(condition))
+
 	//call select repository method to calculate diff of age and rollno of all students
-	if err := s.repository.Select(uow, condition, diff); err != nil {
+	if err := s.repository.Scan(uow, &model.Student{}, diff, queryProcessors); err != nil {
 		return err
 	} else {
 		return nil
@@ -175,8 +179,32 @@ func (s *StudentService) DiffOfAgeAndRecordCount(diff *model.Result) error {
 	//set condition for select query
 	condition := "sum(age) - count(*) as total"
 
+	//give query processor for where
+	queryProcessors := []repository.QueryProcessor{}
+	queryProcessors = append(queryProcessors, repository.Select(condition))
+
 	//call select repository method to calculate diff of age and rollno of all students
-	if err := s.repository.Select(uow, condition, diff); err != nil {
+	if err := s.repository.Scan(uow, &model.Student{}, diff, queryProcessors); err != nil {
+		return err
+	} else {
+		return nil
+	}
+}
+
+func (s *StudentService) TotalPenalty(sum *model.TotalPenalty, studentID string) error {
+	//create unit of work
+	uow := repository.NewUnitOfWork(s.db, true)
+
+	//set condition for select query
+	condition := "sum(penalty) as total"
+
+	//give query processor for where
+	queryProcessors := []repository.QueryProcessor{}
+	queryProcessors = append(queryProcessors, repository.Where("student_id=?", studentID))
+	queryProcessors = append(queryProcessors, repository.Select(condition))
+
+	//call select repository method to calculate total penalty
+	if err := s.repository.Scan(uow, &model.BookIssue{}, sum, queryProcessors); err != nil {
 		return err
 	} else {
 		return nil

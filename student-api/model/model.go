@@ -120,6 +120,10 @@ type Result struct {
 	Total int64
 }
 
+type TotalPenalty struct {
+	Total float64
+}
+
 type Book struct {
 	Base
 	Name       string `gorm:"type:varchar(150)" json:"name"`

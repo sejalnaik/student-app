@@ -33,24 +33,27 @@ func (c *studentController) CreateRoutes(r *mux.Router) {
 	r.HandleFunc("/students/{studentID}", c.GetStudent).Methods("GET")
 
 	//create route for add student
-	r.HandleFunc("/students", c.AddStudent).Methods("POST")
-	/*nAddStudent := negroni.New()
+	//r.HandleFunc("/students", c.AddStudent).Methods("POST")
+	nAddStudent := negroni.New()
 	nAddStudent.Use(negroni.HandlerFunc(tokenCheckMiddleware))
 	nAddStudent.UseHandlerFunc(c.AddStudent)
-	r.Handle("/students", nAddStudent).Methods("POST")*/
+	r.Handle("/students", nAddStudent).Methods("POST")
 
 	//create route for update student
-	r.HandleFunc("/students/{studentID}", c.UpdateStudent).Methods("PUT")
-	/*nUpdateStudent := negroni.New()
+	//r.HandleFunc("/students/{studentID}", c.UpdateStudent).Methods("PUT")
+	nUpdateStudent := negroni.New()
 	nUpdateStudent.Use(negroni.HandlerFunc(tokenCheckMiddleware))
 	nUpdateStudent.UseHandlerFunc(c.UpdateStudent)
-	r.Handle("/students/{studentID}", nUpdateStudent).Methods("PUT")*/
+	r.Handle("/students/{studentID}", nUpdateStudent).Methods("PUT")
 
 	//create route for delete student
 	nDeleteStudent := negroni.New()
 	nDeleteStudent.Use(negroni.HandlerFunc(tokenCheckMiddleware))
 	nDeleteStudent.UseHandlerFunc(c.DeleteStudent)
 	r.Handle("/students/{studentID}", nDeleteStudent).Methods("DELETE")
+
+	//create route for total penalty
+	r.HandleFunc("/student-penalty/{studentID}", c.TotalPenalty).Methods("GET")
 
 	//create route for sum of age and rollno
 	r.HandleFunc("/sum", c.SumOfAgeAndRollNo).Methods("GET")
@@ -390,6 +393,34 @@ func (c *studentController) DiffOfAgeAndRecordCount(w http.ResponseWriter, r *ht
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	} else {
 		log.Println("Diff successful")
+		w.Write(sumJSON)
+	}
+}
+
+func (c *studentController) TotalPenalty(w http.ResponseWriter, r *http.Request) {
+	log.Println("TotalPenalty called")
+
+	//decalre a sum variable for total penalty
+	var sum model.TotalPenalty
+
+	//getting id from query param
+	params := mux.Vars(r)
+	studentID := (params["studentID"])
+
+	//calling service method for total penalty
+	if err := c.studentService.TotalPenalty(&sum, studentID); err != nil {
+		log.Println("Total penalty unsuccessful")
+		log.Println(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	//converting struct to json type and sending back json
+	if sumJSON, err := json.Marshal(&sum); err != nil {
+		log.Println("Total penalty : JSON marshall unsuccessful")
+		log.Println(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	} else {
+		log.Println("Total penalty unsuccessful")
 		w.Write(sumJSON)
 	}
 }

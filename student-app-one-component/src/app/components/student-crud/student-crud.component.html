@@ -188,6 +188,9 @@
 
     <div class="modal-body">
         <h1>Book Issue Table</h1>
+        <div style="text-align: left;background-color: purple;color: white;">
+            Total penalty  : {{totalPenalty}}
+        </div>
         <table class="table table-striped">
             <thead>
                 <tr>
@@ -197,8 +200,6 @@
                     <th>ISSUE DATE</th>
                     <th>RETURNED</th>
                     <th>PENALTY</th>
-                    <th>UPDATE</th>
-                    <th>DELETE</th>
                 </tr>
             </thead>
             <tr *ngFor = "let bookIssue of studentAPI.bookIssues">
@@ -206,10 +207,16 @@
                 <td>{{bookIssue.book.name}}</td>
                 <td>{{bookIssue.book.id}}</td>
                 <td>{{bookIssue.issueDate}}</td>
-                <td><button (click) = "onReturnedButtonClick(bookIssue.id)">{{bookIssue.returned}}</button></td>
+                <td>
+                    <span *ngIf = "!bookIssue.returned;else no">
+                        <button (click) = "onReturnedButtonClick(bookIssue.id)">Return</button>
+                    </span>
+                    <ng-template #no>
+                        <span>Returned</span>
+                    </ng-template>
+                    
+                </td>
                 <td>{{bookIssue.penalty}}</td>
-                <td>UPDATE</td>
-                <td>DELETE</td>
             </tr>
         </table>
         <h1>Book Inventory Table</h1>

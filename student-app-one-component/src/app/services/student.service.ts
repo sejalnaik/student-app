@@ -18,6 +18,7 @@ export class StudentService {
   sumUrl:string = "http://localhost:8080/sum";
   diffUrl:string = "http://localhost:8080/diff";
   diffAgeRecordCount:string = "http://localhost:8080/diff-age-record-count"
+  totalPenlatyUrl:string = "http://localhost:8080/student-penalty"
 
   getStudents():Observable<any>{
 
@@ -68,6 +69,10 @@ export class StudentService {
 
   diffOfAgeAndRecordCount(){
     return this.httpClient.get<any>(this.diffAgeRecordCount, {responseType:'text' as 'json'});
+  }
+
+  getStudentTotalPenalty(id:string){
+    return this.httpClient.get<any>(this.totalPenlatyUrl + "/" + id, {responseType:'text' as 'json'});
   }
 }
 
