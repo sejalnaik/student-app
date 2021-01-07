@@ -12,15 +12,14 @@ import (
 
 type Student struct {
 	Base
-	RollNo      *int        `gorm:"type:int" json:"rollNo"`
-	Name        string      `gorm:"type:varchar(100)" json:"name"`
-	Age         *int        `gorm:"type:int" json:"age"`
-	Email       string      `gorm:"type:varchar(150)" json:"email"`
-	IsMale      *bool       `gorm:"type:tinyint" json:"isMale"`
-	DOB         *string     `gorm:"type:date" json:"dob"`
-	DOBTIME     *string     `gorm:"type:datetime" json:"dobTime"`
-	PhoneNumber *string     `gorm:"type:varchar(12)" json:"phoneNumber"`
-	BookIssues  []BookIssue `json:"bookIssues"`
+	RollNo      *int    `gorm:"type:int" json:"rollNo"`
+	Name        string  `gorm:"type:varchar(100)" json:"name"`
+	Age         *int    `gorm:"type:int" json:"age"`
+	Email       string  `gorm:"type:varchar(150)" json:"email"`
+	IsMale      *bool   `gorm:"type:tinyint" json:"isMale"`
+	DOB         *string `gorm:"type:date" json:"dob"`
+	DOBTIME     *string `gorm:"type:datetime" json:"dobTime"`
+	PhoneNumber *string `gorm:"type:varchar(12)" json:"phoneNumber"`
 }
 
 type Base struct {

@@ -202,14 +202,14 @@
                     <th>PENALTY</th>
                 </tr>
             </thead>
-            <tr *ngFor = "let bookIssue of studentAPI.bookIssues">
+            <tr *ngFor = "let bookIssue of bookIssues">
                 <td>{{bookIssue.id}}</td>
                 <td>{{bookIssue.book.name}}</td>
                 <td>{{bookIssue.book.id}}</td>
                 <td>{{bookIssue.issueDate}}</td>
                 <td>
                     <span *ngIf = "!bookIssue.returned;else no">
-                        <button (click) = "onReturnedButtonClick(bookIssue.id)">Return</button>
+                        <button (click) = "onReturnedButtonClick(bookIssue)">Return</button>
                     </span>
                     <ng-template #no>
                         <span>Returned</span>
@@ -230,7 +230,7 @@
                     <th>ISSUE BOOK</th>
                 </tr>
             </thead>
-            <tr *ngFor = "let book of books">
+            <tr *ngFor = "let book of booksWithAvailable">
                 <td>{{book.id}}</td>
                 <td>{{book.name}}</td>
                 <td>{{book.totalStock}}</td>

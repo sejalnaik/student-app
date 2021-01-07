@@ -19,13 +19,6 @@ func ConvertStudentTimeToDate(student *model.Student) {
 		student.DOB = &tempDOB
 	}
 
-	tempStudent := *student
-	for i := 0; i < len(tempStudent.BookIssues); i++ {
-		tempIssueDate := tempStudent.BookIssues[i].IssueDate
-		tempIssueDate = tempIssueDate[:19]
-		student.BookIssues[i].IssueDate = tempIssueDate
-	}
-
 	if student.DOBTIME != nil {
 		tempDOBTIME := *student.DOBTIME
 		tempDOBTIME = tempDOBTIME[:19]
@@ -123,6 +116,18 @@ func AddStudentEmptyStringToNull(student *model.Student) {
 			student.PhoneNumber = nil
 		}
 	}
+}
+
+func ConvertStructBookIssueToMap(bookIssue *model.BookIssue) map[string]interface{} {
+	bookIssueMap := make(map[string]interface{})
+
+	//penalty
+	bookIssueMap["Penalty"] = bookIssue.Penalty
+
+	//Returned
+	bookIssueMap["Returned"] = bookIssue.Returned
+
+	return bookIssueMap
 }
 
 func EncryptUserPassword(password []byte) ([]byte, error) {

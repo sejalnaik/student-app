@@ -23,13 +23,13 @@ func NewBookIssuesController(bookIssuesService *service.BookIssuesService) *Book
 
 func (c *BookIssuesController) CreateRoutes(r *mux.Router) {
 	//create route for get book issues
-	r.HandleFunc("/book-issues", c.GetAllBooksIssues).Methods("GET")
+	r.HandleFunc("/book-issues/{studentID}", c.GetAllBooksIssues).Methods("GET")
 
 	//create route for adding one book issue
 	r.HandleFunc("/book-issues", c.AddBookIssue).Methods("POST")
 
-	//create route for getting one book issue
-	r.HandleFunc("/book-issues/{bookIssueID}", c.GetBookIssue).Methods("GET")
+	//create route for updating one book issue
+	r.HandleFunc("/book-issues/{bookIssueID}", c.UpdateBookIssue).Methods("PUT")
 }
 
 func (c *BookIssuesController) GetAllBooksIssues(w http.ResponseWriter, r *http.Request) {
@@ -38,8 +38,12 @@ func (c *BookIssuesController) GetAllBooksIssues(w http.ResponseWriter, r *http.
 	//create bucket
 	bookIssues := []model.BookIssue{}
 
+	//getting id from query param
+	params := mux.Vars(r)
+	studentID := (params["studentID"])
+
 	//calling service method to get all books issues
-	if err := c.bookIssuesService.GetAllBookIssues(&bookIssues); err != nil {
+	if err := c.bookIssuesService.GetAllBookIssues(&bookIssues, studentID); err != nil {
 		log.Println("Get books issues unsuccessful")
 		log.Println(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -90,7 +94,7 @@ func (c *BookIssuesController) AddBookIssue(w http.ResponseWriter, r *http.Reque
 	}
 }
 
-func (c *BookIssuesController) GetBookIssue(w http.ResponseWriter, r *http.Request) {
+/*func (c *BookIssuesController) GetBookIssue(w http.ResponseWriter, r *http.Request) {
 	log.Println("Get book issue called")
 
 	//create bucket
@@ -99,8 +103,6 @@ func (c *BookIssuesController) GetBookIssue(w http.ResponseWriter, r *http.Reque
 	//getting id from query param
 	params := mux.Vars(r)
 	bookIssueID := (params["bookIssueID"])
-
-	log.Println("Book issue id", bookIssueID)
 
 	//calling service method to get book issue
 	if err := c.bookIssuesService.GetBookIssue(&bookIssue, bookIssueID); err != nil {
@@ -117,5 +119,43 @@ func (c *BookIssuesController) GetBookIssue(w http.ResponseWriter, r *http.Reque
 	} else {
 		log.Println("Get book issue successful")
 		w.Write(bookIssueJSON)
+	}
+}*/
+
+func (c *BookIssuesController) UpdateBookIssue(w http.ResponseWriter, r *http.Request) {
+	log.Println("Update book issue called")
+
+	//create bucket
+	bookIssue := &model.BookIssue{}
+
+	//getting id from query param
+	params := mux.Vars(r)
+	bookIssueID := (params["bookIssueID"])
+
+	//read book data from response body
+	responseBody, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Println("Update book issue : Could not read response body")
+		log.Println(err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
+
+	//convert json to struct type
+	er := json.Unmarshal(responseBody, bookIssue)
+	if er != nil {
+		log.Println("Update book issue : Json unmarshall unsuccessful")
+		log.Println(er)
+		http.Error(w, er.Error(), http.StatusBadRequest)
+		return
+	}
+
+	//calling service method to update book issue
+	if err := c.bookIssuesService.UpdateBookIssue(bookIssue, bookIssueID); err != nil {
+		log.Println("Update book issue unsuccessful")
+		log.Println(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	} else {
+		log.Println("Update book issue successful")
+		//w.Write([]byte(bookIssue.ID.String()))
 	}
 }

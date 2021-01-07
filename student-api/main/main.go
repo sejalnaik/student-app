@@ -62,8 +62,8 @@ func main() {
 	}
 	log.Println("DB connection established")
 	db.AutoMigrate(&model.Student{}, &model.User{}, &model.Book{}, &model.BookIssue{})
-	db.Model(&model.BookIssue{}).AddForeignKey("book_id", "books(id)", "CASCADE", "CASCADE")
-	db.Model(&model.BookIssue{}).AddForeignKey("student_id", "students(id)", "CASCADE", "CASCADE")
+	db.Model(&model.BookIssue{}).AddForeignKey("book_id", "books(id)", "RESTRICT", "CASCADE")
+	db.Model(&model.BookIssue{}).AddForeignKey("student_id", "students(id)", "RESTRICT", "CASCADE")
 
 	//create router
 	r := mux.NewRouter()

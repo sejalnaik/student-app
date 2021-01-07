@@ -11,7 +11,7 @@ export class BookService {
   books:Book[] = [];
   baseUrl:string = "http://localhost:8080/books";
 
-  constructor(private httpClient:HttpClient,) { }
+  constructor(private httpClient:HttpClient) { }
 
   getBooks():Observable<any>{
     return this.httpClient.get<any>(this.baseUrl, {observe: "response"});

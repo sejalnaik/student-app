@@ -31,5 +31,4 @@ export interface Student {
     email:string,
     isMale:boolean
     phoneNumber:string
-    bookIssues:BookIssues[]
 }

@@ -9,6 +9,7 @@ import { CookieService } from 'ngx-cookie-service';
 import { BookService } from 'src/app/services/book.service';
 import * as moment from 'moment';
 import { Moment } from 'moment';
+import { BookIssueService } from 'src/app/services/book-issue.service';
 
 @Component({
   selector: 'app-student-crud',
@@ -18,10 +19,12 @@ import { Moment } from 'moment';
 export class StudentCrudComponent implements OnInit {
 
   students:Student[] = [];
-  books:BookWithAvailable[] = []
+  booksWithAvailable:BookWithAvailable[] = []
   tempBookIssues:BookIssues[] = []
+  bookIssues:BookIssues[] = []
 
   id:string;
+  studentId:string;
   studentForm:any;
   studentAPI:Student;
   addOrUpdateAction:string;
@@ -34,7 +37,8 @@ export class StudentCrudComponent implements OnInit {
   
   constructor(
     private studentService:StudentService,
-    private bookService:BookService,  
+    private bookService:BookService, 
+    private bookIssueService:BookIssueService,  
     private router:Router, 
     private formBuilder:FormBuilder,
     private modalService: NgbModal,
@@ -109,7 +113,7 @@ export class StudentCrudComponent implements OnInit {
   //get all books
   getBooks(){
     this.bookService.getBooks().subscribe((data)=>{
-      this.books = data.body;
+      this.booksWithAvailable = data.body;
     },
     (err) => {
       this.spinner.hide();
@@ -167,24 +171,18 @@ export class StudentCrudComponent implements OnInit {
 
   //book issues button clicked
   onBookIssuesButtonClick(id:string, bookIssuesModal:any):void{
-    this.studentService.getStudent(id).subscribe((data)=>{
-      //set studentAPI object with values
-      this.studentAPI = {id:id, 
-        name: data.body.name,
-        rollNo: data.body.rollNo,
-        age: data.body.age,
-        dob: data.body.dob,
-        dobTime: data.body.dobTime,
-        email: data.body.email,
-        isMale: data.body.isMale,
-        phoneNumber:data.body.phoneNumber,
-        bookIssues:data.body.bookIssues};
+    this.studentId = id;
+    this.bookIssueService.getBookIssues(id).subscribe((data)=>{
+      this.bookIssues = data;
 
-        //open modal
-        this.openBookIssuesModal(bookIssuesModal);
+      //open modal
+      this.openBookIssuesModal(bookIssuesModal);
 
-        //get total penalty for the student
-        this.getTotalPenalty(id);
+      //get total penalty for the student
+      this.getTotalPenalty(id);
+
+      //get total books
+      this.getBooks();
     },
     (err) => {
       this.spinner.hide();
@@ -193,23 +191,15 @@ export class StudentCrudComponent implements OnInit {
     });
   }
 
-  //get one student
-  getOneStudent(id:string){
-    this.studentService.getStudent(id).subscribe((data)=>{
-      //set the studentAPI object with values
-      this.studentAPI = {id:id, 
-        name: data.body.name,
-        rollNo: data.body.rollNo,
-        age: data.body.age,
-        dob: data.body.dob,
-        dobTime: data.body.dobTime,
-        email: data.body.email,
-        isMale: data.body.isMale,
-        phoneNumber:data.body.phoneNumber,
-        bookIssues:data.body.bookIssues};
+  getBookIssues(){
+    this.bookIssueService.getBookIssues(this.studentId).subscribe((data)=>{
+      this.bookIssues = data;
 
-        //get total penalty for the student
-        this.getTotalPenalty(id);
+      //get total penalty for the student
+      this.getTotalPenalty(this.studentId);
+
+      //get total books
+      this.getBooks();
     },
     (err) => {
       this.spinner.hide();
@@ -220,43 +210,10 @@ export class StudentCrudComponent implements OnInit {
 
   //on issue book button click
   onIssueBookButtonClick(book:Book){
-    //check if book is available
-    for(let i = 0; i < this.books.length; i++){
-      if(book.id == this.books[i].id){
-        if (this.books[i].available == 0){
-          alert("Book not available for issue")
-          return
-        }
-      }
-    }
-
-    //check if book is already issued
-    for(let i = 0; i < this.studentAPI.bookIssues.length; i++){
-      if((book.id == this.studentAPI.bookIssues[i].book.id) && (this.studentAPI.bookIssues[i].returned == false)){
-        alert("Book is already issued")
-        return
-      }
-    }
-    
-    //create current date and time
-    let now: Moment;
-    now = moment(new Date());
-    let nowInString:string = now.format();
-    nowInString = nowInString.substring(0,19);
-    
-    //add book issue to existing book issues array
-    this.studentAPI.bookIssues.push({id:null,
-      bookId:null,
-      studentId:this.studentAPI.id,
-      book:book,
-      issueDate:nowInString,
-      returned:false,
-      penalty:0});
-
-    this.studentService.updateStudent(this.studentAPI).subscribe((data)=>{
-        this.getBooks();
-        this.getOneStudent(this.studentAPI.id);
-        alert("Student updated"); 
+    let bookIssue:BookIssues = {id:null, bookId:book.id, studentId:this.studentId, book:book, issueDate:null, returned:null, penalty:null}
+    this.bookIssueService.addBookIssue(bookIssue).subscribe((data)=>{  
+      this.getBookIssues();
+        alert("Book issue added with :" + data ); 
       },
       (err) => {
         this.spinner.hide();
@@ -271,19 +228,12 @@ export class StudentCrudComponent implements OnInit {
   }
 
   //on returned button click
-  onReturnedButtonClick(bookIssueId:string){
-    //make returned flag true and penalty to 0
-    for(let i = 0; i < this.studentAPI.bookIssues.length; i++){
-      if(bookIssueId == this.studentAPI.bookIssues[i].id){
-        this.studentAPI.bookIssues[i].returned = true;
-        this.studentAPI.bookIssues[i].penalty = 0;
-      }
-    }
-
-    this.studentService.updateStudent(this.studentAPI).subscribe((data)=>{
-      this.getOneStudent(this.studentAPI.id);
+  onReturnedButtonClick(bookIssue:BookIssues){
+    console.log(bookIssue);
+    this.bookIssueService.upadteBookIssue(bookIssue, bookIssue.id).subscribe((data)=>{
+      this.getBookIssues();
       this.getBooks();
-      alert("Student updated"); 
+      alert("Book returned"); 
     },
     (err) => {
       this.spinner.hide();
@@ -308,8 +258,7 @@ export class StudentCrudComponent implements OnInit {
                       isMale:this.studentForm.get('gender').value, 
                       dob:this.studentForm.get('dob').value,
                       dobTime:this.studentForm.get('dobTime').value,
-                      phoneNumber:this.studentForm.get('phoneNumber').value,
-                      bookIssues: bookIssues};
+                      phoneNumber:this.studentForm.get('phoneNumber').value};
     this.studentService.addStudent(this.studentAPI).subscribe(data=>{
       this.spinner.show()
       this.modalRef.close();
@@ -387,9 +336,7 @@ export class StudentCrudComponent implements OnInit {
         isMale:this.studentForm.get('gender').value, 
         dob:this.studentForm.get('dob').value,
         dobTime:this.studentForm.get('dobTime').value,
-        phoneNumber:this.studentForm.get('phoneNumber').value,
-        bookIssues:this.tempBookIssues
-      };
+        phoneNumber:this.studentForm.get('phoneNumber').value};
 
       //this.dateEmptyToNull(this.studentAPI)
       this.studentService.updateStudent(this.studentAPI).subscribe((data)=>{
