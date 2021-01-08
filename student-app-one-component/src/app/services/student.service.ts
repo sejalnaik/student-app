@@ -79,6 +79,8 @@ export class StudentService {
   searchStudent(studentSerach:StudentSearch):Observable<any>{
     let url:string;
     let paramsSet:string[] = []; 
+    
+    //create query params key value pairs
     for (let key of Object.keys(studentSerach)) {
       let value = studentSerach[key];
       if(value == ""){

@@ -431,12 +431,10 @@ func (c *studentController) TotalPenalty(w http.ResponseWriter, r *http.Request)
 func (c *studentController) SearchStudents(w http.ResponseWriter, r *http.Request) {
 	log.Println("Search students called")
 
-	log.Println("URL*************************************", r.URL)
-	log.Println("Params**************************************", r.URL.Query())
-
 	//create map for query params
 	paramsMap := r.URL.Query()
 
+	//if no query params present then call get all students controller method
 	if len(paramsMap) == 0 {
 		c.GetAllStudents(w, r)
 		return
@@ -447,18 +445,18 @@ func (c *studentController) SearchStudents(w http.ResponseWriter, r *http.Reques
 
 	//call service method for search students
 	if err := c.studentService.SearchStudents(paramsMap, &students); err != nil {
-		log.Println("search unsuccessful")
+		log.Println("Search students unsuccessful")
 		log.Println(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 
 	//converting struct to json type and sending back json
 	if studentsJSON, err := json.Marshal(students); err != nil {
-		log.Println("Get students : JSON marshall unsuccessful")
+		log.Println("Search students : JSON marshall unsuccessful")
 		log.Println(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	} else {
-		log.Println("Get students successful")
+		log.Println("Search students successful")
 		w.Write(studentsJSON)
 	}
 }
