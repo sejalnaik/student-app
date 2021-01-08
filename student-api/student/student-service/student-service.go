@@ -223,10 +223,10 @@ func (s *StudentService) SearchStudents(paramsMap map[string][]string, students 
 	paramsMapLength := len(paramsMap)
 	for key, value := range paramsMap {
 		if key == "from" {
-			condition = condition + "dob > " + "'" + value[0] + "'" + " "
+			condition = condition + "dob >= " + "'" + value[0] + "'" + " "
 
 		} else if key == "to" {
-			condition = condition + "dob < " + "'" + value[0] + "'" + " "
+			condition = condition + "dob <= " + "'" + value[0] + "'" + " "
 		} else {
 			condition = condition + key + " like " + "'%" + value[0] + "%' "
 		}

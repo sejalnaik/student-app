@@ -84,7 +84,7 @@ export class StudentService {
       if(value == ""){
         continue
       }
-      paramsSet .push(key + "=" + value);
+      paramsSet.push(key + "=" + value);
     }
     if(paramsSet.length == 0){
       url = this.searchUrl;
