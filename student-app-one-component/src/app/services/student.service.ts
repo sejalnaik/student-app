@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { Observable } from 'rxjs';
-import { Student } from "../classes/student";
+import { Student, StudentSearch } from "../classes/student";
 import { CookieService } from 'ngx-cookie-service';
 
 @Injectable({
@@ -15,6 +15,7 @@ export class StudentService {
     private cookieService: CookieService
     ){}
   baseUrl:string = "http://localhost:8080/students";
+  searchUrl:string = "http://localhost:8080/students-search";
   sumUrl:string = "http://localhost:8080/sum";
   diffUrl:string = "http://localhost:8080/diff";
   diffAgeRecordCount:string = "http://localhost:8080/diff-age-record-count"
@@ -73,6 +74,26 @@ export class StudentService {
 
   getStudentTotalPenalty(id:string){
     return this.httpClient.get<any>(this.totalPenlatyUrl + "/" + id, {responseType:'text' as 'json'});
+  }
+
+  searchStudent(studentSerach:StudentSearch):Observable<any>{
+    let url:string;
+    let paramsSet:string[] = []; 
+    for (let key of Object.keys(studentSerach)) {
+      let value = studentSerach[key];
+      if(value == ""){
+        continue
+      }
+      paramsSet .push(key + "=" + value);
+    }
+    if(paramsSet.length == 0){
+      url = this.searchUrl;
+    }
+    else{
+      url = this.searchUrl + "?" + paramsSet.join("&");
+    }
+    console.log(url)
+    return this.httpClient.get<any>(url, {observe: "response"});
   }
 }
 

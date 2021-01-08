@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Validators, FormBuilder, FormControl } from '@angular/forms';
 import { Router } from '@angular/router';
-import { BookIssues, Student, Book, BookWithAvailable } from 'src/app/classes/student';
+import { BookIssues, Student, Book, BookWithAvailable, StudentSearch } from 'src/app/classes/student';
 import { StudentService } from 'src/app/services/student.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { NgxSpinnerService } from "ngx-spinner";
@@ -20,13 +20,14 @@ export class StudentCrudComponent implements OnInit {
 
   students:Student[] = [];
   booksWithAvailable:BookWithAvailable[] = []
-  tempBookIssues:BookIssues[] = []
   bookIssues:BookIssues[] = []
 
   id:string;
   studentId:string;
   studentForm:any;
+  studentSearchForm:any;
   studentAPI:Student;
+  searchedStudent:StudentSearch
   addOrUpdateAction:string;
   modalRef: any;
   loadingMessage: string = "Getting students";
@@ -51,6 +52,7 @@ export class StudentCrudComponent implements OnInit {
     this.getStudents();
     this.getBooks();
     this.createStudentForm();
+    this.createStudentSearchForm();
    }
 
    //create student add/update form
@@ -67,10 +69,21 @@ export class StudentCrudComponent implements OnInit {
     });
   }
 
+  //create student search form
+  createStudentSearchForm(){
+    this.studentSearchForm = this.formBuilder.group({
+      name: ['', [Validators.pattern("^[a-zA-Z_ ]+$")]],
+      from: [''],
+      to: [''],
+      email: ['', [Validators.pattern("^[a-zA-Z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$")]]
+    });
+  }
+
   //get all students
   getStudents():void{
     this.studentService.getStudents().subscribe((data)=>{
       this.students = data.body;
+      console.log(this.students)
       //this.spinner.hide();
     },
     (err) => {
@@ -247,6 +260,27 @@ export class StudentCrudComponent implements OnInit {
     });
   }
 
+  onSearchButtonClick(){
+    //create search student
+    this.searchedStudent = {
+      name: this.studentSearchForm.get('name').value,
+      email: this.studentSearchForm.get('email').value,
+      from:this.studentSearchForm.get('from').value,
+      to:this.studentSearchForm.get('to').value
+    }
+
+    //call search studnets service
+    //this.studentService.searchStudent(this.searchedStudent)
+    this.studentService.searchStudent(this.searchedStudent).subscribe((data)=>{
+      this.students = data.body
+    },
+    (err) => {
+      this.spinner.hide();
+      console.log('HTTP Error', err);
+      alert(err.error)
+    });
+  }
+
   //add student
   addStudent():void{
     let bookIssues:BookIssues[] = []
@@ -313,8 +347,6 @@ export class StudentCrudComponent implements OnInit {
           gender: data.body.isMale,
           phoneNumber:data.body.phoneNumber
         });
-        this.tempBookIssues = data.body.bookIssues;
-        console.log(data.body.bookIssues)
         this.spinner.hide()
       },
       (err) => {

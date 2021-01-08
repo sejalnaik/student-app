@@ -32,3 +32,10 @@ export interface Student {
     isMale:boolean
     phoneNumber:string
 }
+
+export interface StudentSearch{
+    name:string,
+    email:string,
+    from:string,
+    to:string
+}

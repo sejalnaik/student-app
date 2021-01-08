@@ -3,6 +3,7 @@ package studentservice
 import (
 	"encoding/json"
 	"errors"
+	"log"
 
 	"github.com/jinzhu/gorm"
 	"github.com/sejalnaik/student-app/model"
@@ -40,10 +41,9 @@ func (s *StudentService) GetStudent(student *model.Student, studentID string) er
 	//create unit of work
 	uow := repository.NewUnitOfWork(s.db, true)
 
-	//give query processor for where and preload
+	//give query processor for where
 	queryProcessors := []repository.QueryProcessor{}
 	queryProcessors = append(queryProcessors, repository.Where("id=?", studentID))
-	queryProcessors = append(queryProcessors, repository.PreloadAssociations([]string{"BookIssues.Book", "BookIssues"}))
 
 	//call get repository method to get one student
 	if err := s.repository.Get(uow, student, queryProcessors); err != nil {
@@ -68,6 +68,9 @@ func (s *StudentService) AddStudent(student *model.Student) error {
 
 	//convert empty fields of student to null
 	utility.AddStudentEmptyStringToNull(student)
+
+	log.Println("**********************************************************")
+	log.Println(student)
 
 	//call add repository method to add one student
 	if err := s.repository.Add(uow, student); err != nil {
@@ -109,8 +112,20 @@ func (s *StudentService) DeleteStudent(student *model.Student, studentID string)
 	//create unit of work
 	uow := repository.NewUnitOfWork(s.db, true)
 
-	//give query processor for where
+	//check if student has any book issues
 	queryProcessors := []repository.QueryProcessor{}
+	queryProcessors = append(queryProcessors, repository.Where("student_id=?", studentID))
+	if err := s.repository.Get(uow, &model.BookIssue{}, queryProcessors); err == nil {
+		return errors.New("Student cannot be deleted because it has book issues")
+	} else if err.Error() == "record not found" {
+		goto canBeDeleted
+	} else {
+		return err
+	}
+
+	//give query processor for where
+canBeDeleted:
+	queryProcessors = []repository.QueryProcessor{}
 	queryProcessors = append(queryProcessors, repository.Where("id=?", studentID))
 
 	//call delete repository method to delete one student
@@ -195,6 +210,43 @@ func (s *StudentService) TotalPenalty(sum *model.TotalPenalty, studentID string)
 	if err := s.repository.Scan(uow, &model.BookIssue{}, sum, queryProcessors); err != nil {
 		return err
 	} else {
+		return nil
+	}
+}
+
+func (s *StudentService) SearchStudents(paramsMap map[string][]string, students *[]model.Student) error {
+	//create unit of work
+	uow := repository.NewUnitOfWork(s.db, true)
+
+	//create where condition
+	condition := ""
+	paramsMapLength := len(paramsMap)
+	for key, value := range paramsMap {
+		if key == "from" {
+			condition = condition + "dob > " + "'" + value[0] + "'" + " "
+
+		} else if key == "to" {
+			condition = condition + "dob < " + "'" + value[0] + "'" + " "
+		} else {
+			condition = condition + key + " like " + "'%" + value[0] + "%' "
+		}
+		paramsMapLength = paramsMapLength - 1
+		if paramsMapLength == 0 {
+			break
+		}
+		condition = condition + " and "
+	}
+
+	//give query processor for where
+	queryProcessors := []repository.QueryProcessor{}
+	queryProcessors = append(queryProcessors, repository.Where(condition))
+
+	//call get repository method to get students
+	if err := s.repository.Get(uow, students, queryProcessors); err != nil {
+		return err
+	} else {
+		//to trim dob and dobtime
+		utility.ConvertStudentsTimeToDate(students)
 		return nil
 	}
 }

@@ -31,3 +31,10 @@ input[type="radio"]{
     position: relative;
     top: 6px;
 }
+
+.requiredWithBg{
+    color: red;
+    position: relative;
+    top: 6px;
+    background-color: antiquewhite;
+}

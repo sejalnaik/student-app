@@ -1,6 +1,54 @@
 <app-navbar></app-navbar>
 <ngx-bootstrap-spinner></ngx-bootstrap-spinner>
 
+<div style="margin-top: 10px;">
+    <form class="form-horizontal" [formGroup]="studentSearchForm">
+        
+        <div class="form-group row">
+            <label class="control-label col-sm-2">Name</label>
+            <div class="col-sm-4">
+                <input type="text" class="form-control" formControlName="name"> 
+            </div>
+            <div class="col-sm-4">
+                <span *ngIf = "studentSearchForm.get('name').invalid && (studentSearchForm.get('name').dirty || studentSearchForm.get('name').touched)" class = "requiredWithBg">
+                    <span *ngIf="studentSearchForm.get('name').errors.pattern">Name can contain only alphabets</span>
+                </span>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <label class="control-label col-sm-2">Email</label>
+            <div class="col-sm-4">
+                <input type="text" class="form-control" formControlName="email"> 
+            </div>
+            <div class="col-sm-4">
+                <span *ngIf = "studentSearchForm.get('email').invalid && (studentSearchForm.get('email').dirty || studentSearchForm.get('email').touched)" class = "requiredWithBg">
+                    <span *ngIf="studentSearchForm.get('email').errors.pattern">Please type the proper email format</span>
+                </span>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <label class="control-label col-sm-2">DOB From</label>
+            <div class="col-sm-4">
+                <input type="date" class="form-control" formControlName="from"> 
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <label class="control-label col-sm-2">DOB To</label>
+            <div class="col-sm-4">
+                <input type="date" class="form-control" formControlName="to"> 
+            </div>
+        </div>
+
+        <div class="form-group" style="text-align: left;margin-left: 10%;">
+            <button [disabled]="!studentSearchForm.valid" class="btn btn-primary" type="submit" (click) = "onSearchButtonClick()">SEARCH</button>
+        </div>
+
+    </form>
+</div>
+
 <button class="btn btn-primary" class = "addStudentBtn" (click) = "onAddButtonClick(studentFormModal)">ADD STUDENT</button>
 <br><br>
 <div style="text-align: left;background-color: purple;color: white;">
@@ -40,8 +88,11 @@
             <td>{{student.age}}</td>
             <td>{{student.email}}</td>
             <td>
-                <span *ngIf = "student.isMale;else no">Male</span>
-                <ng-template #no>
+                <span *ngIf = "student.isMale==null; else maleOrFemale"></span>
+                <ng-template #maleOrFemale>
+                    <span *ngIf = "student.isMale; else female">Male</span>
+                </ng-template>
+                <ng-template #female>
                     <span>Female</span>
                 </ng-template>
             </td>

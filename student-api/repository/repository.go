@@ -40,9 +40,9 @@ func PreloadAssociations(preloadAssociations []string) QueryProcessor {
 	}
 }
 
-func Model() QueryProcessor {
+func Model(entity interface{}) QueryProcessor {
 	return func(db *gorm.DB, out interface{}) (*gorm.DB, error) {
-		db = db.Model(out)
+		db = db.Model(entity)
 		return db, nil
 	}
 }

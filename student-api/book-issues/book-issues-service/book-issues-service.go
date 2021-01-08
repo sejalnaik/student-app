@@ -56,7 +56,7 @@ func (s *BookIssuesService) AddBookIssue(bookIssue *model.BookIssue) error {
 
 	//get book with available column
 	queryProcessors := []repository.QueryProcessor{}
-	queryProcessors = append(queryProcessors, repository.Model())
+	queryProcessors = append(queryProcessors, repository.Model(&model.Book{}))
 	queryProcessors = append(queryProcessors, repository.Where("books.id=?", bookIssue.Book.ID))
 	queryProcessors = append(queryProcessors, repository.Select("(MIN(total_stock) - COUNT(IF(book_issues.returned = 0, 1, NULL))) AS available"))
 	queryProcessors = append(queryProcessors, repository.Joins("left join book_issues on book_issues.book_id = books.id"))
@@ -78,8 +78,12 @@ func (s *BookIssuesService) AddBookIssue(bookIssue *model.BookIssue) error {
 	queryProcessors = append(queryProcessors, repository.Where("returned=?", "0"))
 	if err := s.repository.Get(uow, &model.BookIssue{}, queryProcessors); err == nil {
 		return errors.New("Book is already issued")
+	} else if err.Error() == "record not found" {
+		goto canBeAdded
+	} else {
+		return err
 	}
-
+canBeAdded:
 	//create issue date and time and give it to book issue
 	currentTime := time.Now()
 	currentTime.Format("2006.01.02 15:04:05")

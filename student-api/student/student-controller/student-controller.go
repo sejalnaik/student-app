@@ -32,6 +32,9 @@ func (c *studentController) CreateRoutes(r *mux.Router) {
 	//create route for get student
 	r.HandleFunc("/students/{studentID}", c.GetStudent).Methods("GET")
 
+	//create route for searching students
+	r.HandleFunc("/students-search", c.SearchStudents).Methods("GET")
+
 	//create route for add student
 	//r.HandleFunc("/students", c.AddStudent).Methods("POST")
 	nAddStudent := negroni.New()
@@ -422,5 +425,40 @@ func (c *studentController) TotalPenalty(w http.ResponseWriter, r *http.Request)
 	} else {
 		log.Println("Total penalty unsuccessful")
 		w.Write(sumJSON)
+	}
+}
+
+func (c *studentController) SearchStudents(w http.ResponseWriter, r *http.Request) {
+	log.Println("Search students called")
+
+	log.Println("URL*************************************", r.URL)
+	log.Println("Params**************************************", r.URL.Query())
+
+	//create map for query params
+	paramsMap := r.URL.Query()
+
+	if len(paramsMap) == 0 {
+		c.GetAllStudents(w, r)
+		return
+	}
+
+	//create bucket
+	students := []model.Student{}
+
+	//call service method for search students
+	if err := c.studentService.SearchStudents(paramsMap, &students); err != nil {
+		log.Println("search unsuccessful")
+		log.Println(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	//converting struct to json type and sending back json
+	if studentsJSON, err := json.Marshal(students); err != nil {
+		log.Println("Get students : JSON marshall unsuccessful")
+		log.Println(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	} else {
+		log.Println("Get students successful")
+		w.Write(studentsJSON)
 	}
 }
