@@ -40,3 +40,7 @@ export interface StudentSearch{
     to:string,
     age:number
 }
+
+export interface StudentId{
+    id:string
+}

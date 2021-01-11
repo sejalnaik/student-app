@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Validators, FormBuilder, FormControl } from '@angular/forms';
 import { Router } from '@angular/router';
-import { BookIssues, Student, Book, BookWithAvailable, StudentSearch } from 'src/app/classes/student';
+import { BookIssues, Student, Book, BookWithAvailable, StudentSearch, StudentId } from 'src/app/classes/student';
 import { StudentService } from 'src/app/services/student.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { NgxSpinnerService } from "ngx-spinner";
@@ -22,8 +22,7 @@ export class StudentCrudComponent implements OnInit {
   booksWithAvailable:BookWithAvailable[] = []
   bookIssues:BookIssues[] = []
 
-  id:string;
-  studentId:string;
+  studentId:StudentId = {id:""};
   studentForm:any;
   studentSearchForm:any;
   studentAPI:Student;
@@ -185,7 +184,7 @@ export class StudentCrudComponent implements OnInit {
 
   //book issues button clicked
   onBookIssuesButtonClick(id:string, bookIssuesModal:any):void{
-    this.studentId = id;
+    this.studentId.id = id;
     this.bookIssueService.getBookIssues(id).subscribe((data)=>{
       this.bookIssues = data;
 
@@ -206,11 +205,11 @@ export class StudentCrudComponent implements OnInit {
   }
 
   getBookIssues(){
-    this.bookIssueService.getBookIssues(this.studentId).subscribe((data)=>{
+    this.bookIssueService.getBookIssues(this.studentId.id).subscribe((data)=>{
       this.bookIssues = data;
 
       //get total penalty for the student
-      this.getTotalPenalty(this.studentId);
+      this.getTotalPenalty(this.studentId.id);
 
       //get total books
       this.getBooks();
@@ -224,7 +223,7 @@ export class StudentCrudComponent implements OnInit {
 
   //on issue book button click
   onIssueBookButtonClick(book:Book){
-    let bookIssue:BookIssues = {id:null, bookId:book.id, studentId:this.studentId, book:book, issueDate:null, returned:null, penalty:null}
+    let bookIssue:BookIssues = {id:null, bookId:book.id, studentId:this.studentId.id, book:book, issueDate:null, returned:null, penalty:null}
     this.bookIssueService.addBookIssue(bookIssue).subscribe((data)=>{  
       this.getBookIssues();
         alert("Book issue added with :" + data ); 
@@ -337,7 +336,7 @@ export class StudentCrudComponent implements OnInit {
       this.spinner.show()
       this.createStudentForm();
       this.addOrUpdateAction = "update";
-      this.id = id;
+      this.studentId.id = id;
       this.studentService.getStudent(id).subscribe((data)=>{
         this.studentForm.patchValue({
           name: data.body.name,
@@ -362,7 +361,7 @@ export class StudentCrudComponent implements OnInit {
     updateStudent():void{
       this.spinner.show()
       this.studentAPI = {
-        id:this.id, 
+        id:this.studentId.id, 
         rollNo:this.studentForm.get('rollNo').value, 
         name:this.studentForm.get('name').value, 
         age:this.studentForm.get('age').value, 
