@@ -29,11 +29,8 @@ func (c *studentController) CreateRoutes(r *mux.Router) {
 	//create route for get students
 	r.HandleFunc("/students", c.GetAllStudents).Methods("GET")
 
-	//create route for get student
-	r.HandleFunc("/students/{studentID}", c.GetStudent).Methods("GET")
-
 	//create route for searching students
-	r.HandleFunc("/students-search", c.SearchStudents).Methods("GET")
+	r.HandleFunc("/students/search", c.SearchStudents).Methods("GET")
 
 	//create route for add student
 	//r.HandleFunc("/students", c.AddStudent).Methods("POST")
@@ -56,16 +53,19 @@ func (c *studentController) CreateRoutes(r *mux.Router) {
 	r.Handle("/students/{studentID}", nDeleteStudent).Methods("DELETE")
 
 	//create route for total penalty
-	r.HandleFunc("/student-penalty/{studentID}", c.TotalPenalty).Methods("GET")
+	r.HandleFunc("/students/penalty/{studentID}", c.TotalPenalty).Methods("GET")
 
 	//create route for sum of age and rollno
-	r.HandleFunc("/sum", c.SumOfAgeAndRollNo).Methods("GET")
+	r.HandleFunc("/students/sum", c.SumOfAgeAndRollNo).Methods("GET")
 
 	//create route for diff of age and rollno
-	r.HandleFunc("/diff", c.DiffOfAgeAndRollNo).Methods("GET")
+	r.HandleFunc("/students/diff", c.DiffOfAgeAndRollNo).Methods("GET")
 
 	//create route for diff of age and record count
-	r.HandleFunc("/diff-age-record-count", c.DiffOfAgeAndRecordCount).Methods("GET")
+	r.HandleFunc("/students/diff-age-record-count", c.DiffOfAgeAndRecordCount).Methods("GET")
+
+	//create route for get student
+	r.HandleFunc("/students/{studentID}", c.GetStudent).Methods("GET")
 }
 
 func tokenCheckMiddleware(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {

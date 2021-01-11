@@ -1,5 +1,4 @@
 <app-navbar></app-navbar>
-<ngx-bootstrap-spinner></ngx-bootstrap-spinner>
 
 <div style="margin-top: 10px;">
     <form class="form-horizontal" [formGroup]="studentSearchForm">
@@ -51,6 +50,9 @@
 
         <div class="form-group" style="text-align: left;margin-left: 10%;">
             <button [disabled]="!studentSearchForm.valid" class="btn btn-primary" type="submit" (click) = "onSearchButtonClick()">SEARCH</button>
+            &nbsp;&nbsp;&nbsp; 
+            <button class="btn btn-primary" (click) = "studentSearchForm.reset()">RESET</button>
+
         </div>
 
     </form>

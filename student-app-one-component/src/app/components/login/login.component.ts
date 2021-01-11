@@ -110,6 +110,13 @@ export class LoginComponent implements OnInit {
     }
   }
 
+  closeModalRedirectToHome():void{
+    this.modalRef.close();
+     //redirect to list
+     this.router.navigate(["/"]);
+
+  }
+
   openLoginFormModal(loginFormModal: any):void {
     this.modalRef = this.modalService.open(loginFormModal, { ariaLabelledBy: 'modal-basic-title', backdrop: 'static', size: 'xl' });
     /*this.modalRef.result.then((result) => {

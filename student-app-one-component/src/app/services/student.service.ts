@@ -15,11 +15,6 @@ export class StudentService {
     private cookieService: CookieService
     ){}
   baseUrl:string = "http://localhost:8080/students";
-  searchUrl:string = "http://localhost:8080/students-search";
-  sumUrl:string = "http://localhost:8080/sum";
-  diffUrl:string = "http://localhost:8080/diff";
-  diffAgeRecordCount:string = "http://localhost:8080/diff-age-record-count"
-  totalPenlatyUrl:string = "http://localhost:8080/student-penalty"
 
   getStudents():Observable<any>{
 
@@ -61,23 +56,23 @@ export class StudentService {
   }
 
   sumOfAgeAndRollNo(){
-    return this.httpClient.get<any>(this.sumUrl, {responseType:'text' as 'json'});
+    return this.httpClient.get<any>(this.baseUrl + "/sum", {responseType:'text' as 'json'});
   }
 
   diffOfAgeAndRollNo(){
-    return this.httpClient.get<any>(this.diffUrl, {responseType:'text' as 'json'});
+    return this.httpClient.get<any>(this.baseUrl + "/diff", {responseType:'text' as 'json'});
   }
 
   diffOfAgeAndRecordCount(){
-    return this.httpClient.get<any>(this.diffAgeRecordCount, {responseType:'text' as 'json'});
+    return this.httpClient.get<any>(this.baseUrl + "/diff-age-record-count", {responseType:'text' as 'json'});
   }
 
   getStudentTotalPenalty(id:string){
-    return this.httpClient.get<any>(this.totalPenlatyUrl + "/" + id, {responseType:'text' as 'json'});
+    return this.httpClient.get<any>(this.baseUrl + "/penalty/" + id, {responseType:'text' as 'json'});
   }
 
   searchStudent(studentSerach:StudentSearch):Observable<any>{
-    let url:string;
+    let url:string = this.baseUrl + "/search"
     let paramsSet:string[] = []; 
     
     //create query params key value pairs
@@ -88,13 +83,9 @@ export class StudentService {
       }
       paramsSet.push(key + "=" + value);
     }
-    if(paramsSet.length == 0){
-      url = this.searchUrl;
+    if(paramsSet.length != 0){
+      url = url + "?" + paramsSet.join("&");
     }
-    else{
-      url = this.searchUrl + "?" + paramsSet.join("&");
-    }
-    console.log(url)
     return this.httpClient.get<any>(url, {observe: "response"});
   }
 }

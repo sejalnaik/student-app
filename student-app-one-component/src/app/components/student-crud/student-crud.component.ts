@@ -4,11 +4,8 @@ import { Router } from '@angular/router';
 import { BookIssues, Student, Book, BookWithAvailable, StudentSearch, StudentId } from 'src/app/classes/student';
 import { StudentService } from 'src/app/services/student.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { NgxSpinnerService } from "ngx-spinner";
 import { CookieService } from 'ngx-cookie-service';
 import { BookService } from 'src/app/services/book.service';
-import * as moment from 'moment';
-import { Moment } from 'moment';
 import { BookIssueService } from 'src/app/services/book-issue.service';
 
 @Component({
@@ -29,7 +26,6 @@ export class StudentCrudComponent implements OnInit {
   searchedStudent:StudentSearch
   addOrUpdateAction:string;
   modalRef: any;
-  loadingMessage: string = "Getting students";
   sumOfAgeAndRollNo:number;
   diffOfAgeAndRollNo:number;
   diffOfAgeAndRecordCount:number;
@@ -42,12 +38,10 @@ export class StudentCrudComponent implements OnInit {
     private router:Router, 
     private formBuilder:FormBuilder,
     private modalService: NgbModal,
-    private spinner: NgxSpinnerService,
     private cookieService: CookieService
     ) { }
 
   ngOnInit(): void {
-    this.spinner.show();
     this.getStudents();
     this.getBooks();
     this.createStudentForm();
@@ -74,7 +68,7 @@ export class StudentCrudComponent implements OnInit {
       name: ['', [Validators.pattern("^[a-zA-Z_ ]+$")]],
       from: [''],
       to: [''],
-      email: ['', [Validators.pattern("^[a-zA-Z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$")]],
+      email: [''],
       age:['']
     });
   }
@@ -83,41 +77,32 @@ export class StudentCrudComponent implements OnInit {
   getStudents():void{
     this.studentService.getStudents().subscribe((data)=>{
       this.students = data.body;
-      console.log(this.students)
-      //this.spinner.hide();
     },
     (err) => {
-      this.spinner.hide();
       console.log('HTTP Error', err);
       alert(err.error)
     });
 
     /*this.studentService.sumOfAgeAndRollNo().subscribe((data)=>{
       this.sumOfAgeAndRollNo = (JSON.parse(data))["Total"];
-      //this.spinner.hide();
     },
     (err) => {
-      this.spinner.hide();
       console.log('HTTP Error', err);
       alert(err.error)
     });
 
     this.studentService.diffOfAgeAndRollNo().subscribe((data)=>{
       this.diffOfAgeAndRollNo = (JSON.parse(data))["Total"];
-      //this.spinner.hide();
     },
     (err) => {
-      this.spinner.hide();
       console.log('HTTP Error', err);
       alert(err.error)
     });
 
     this.studentService.diffOfAgeAndRecordCount().subscribe((data)=>{
       this.diffOfAgeAndRecordCount = (JSON.parse(data))["Total"];
-      //this.spinner.hide();
     },
     (err) => {
-      this.spinner.hide();
       console.log('HTTP Error', err);
       alert(err.error)
     });*/
@@ -129,7 +114,6 @@ export class StudentCrudComponent implements OnInit {
       this.booksWithAvailable = data.body;
     },
     (err) => {
-      this.spinner.hide();
       console.log('HTTP Error', err);
       alert(err.error)
     });
@@ -142,7 +126,6 @@ export class StudentCrudComponent implements OnInit {
       console.log("total penlaty" + this.totalPenalty);
     },
     (err) => {
-      this.spinner.hide();
       console.log('HTTP Error', err);
       alert(err.error)
     });
@@ -198,7 +181,6 @@ export class StudentCrudComponent implements OnInit {
       this.getBooks();
     },
     (err) => {
-      this.spinner.hide();
       console.log('HTTP Error', err);
       alert(err.error)
     });
@@ -215,7 +197,6 @@ export class StudentCrudComponent implements OnInit {
       this.getBooks();
     },
     (err) => {
-      this.spinner.hide();
       console.log('HTTP Error', err);
       alert(err.error)
     });
@@ -229,7 +210,6 @@ export class StudentCrudComponent implements OnInit {
         alert("Book issue added with :" + data ); 
       },
       (err) => {
-        this.spinner.hide();
         console.log('HTTP Error', err);
         if (err.status == 401){
           alert("Session has expired, please login first")
@@ -249,7 +229,6 @@ export class StudentCrudComponent implements OnInit {
       alert("Book returned"); 
     },
     (err) => {
-      this.spinner.hide();
       console.log('HTTP Error', err);
       if (err.status == 401){
         alert("Session has expired, please login first")
@@ -276,7 +255,6 @@ export class StudentCrudComponent implements OnInit {
       this.students = data.body
     },
     (err) => {
-      this.spinner.hide();
       console.log('HTTP Error', err);
       alert(err.error)
     });
@@ -295,7 +273,6 @@ export class StudentCrudComponent implements OnInit {
                       dobTime:this.studentForm.get('dobTime').value,
                       phoneNumber:this.studentForm.get('phoneNumber').value};
     this.studentService.addStudent(this.studentAPI).subscribe(data=>{
-      this.spinner.show()
       this.modalRef.close();
       this.getStudents();
       alert("Student added with id :" + data.body);
@@ -304,7 +281,6 @@ export class StudentCrudComponent implements OnInit {
       }
     },
       (err) => {
-        this.spinner.hide();
       console.log('HTTP Error', err);
       if (err.status == 401){
         alert("Session has expired, please login first")
@@ -333,7 +309,6 @@ export class StudentCrudComponent implements OnInit {
 
     //prepopulate update student form
     prepopulate(id:string):void{
-      this.spinner.show()
       this.createStudentForm();
       this.addOrUpdateAction = "update";
       this.studentId.id = id;
@@ -348,10 +323,8 @@ export class StudentCrudComponent implements OnInit {
           gender: data.body.isMale,
           phoneNumber:data.body.phoneNumber
         });
-        this.spinner.hide()
       },
       (err) => {
-        this.spinner.hide();
         console.log('HTTP Error', err);
         alert(err.error)
       });
@@ -359,7 +332,6 @@ export class StudentCrudComponent implements OnInit {
 
     //update student
     updateStudent():void{
-      this.spinner.show()
       this.studentAPI = {
         id:this.studentId.id, 
         rollNo:this.studentForm.get('rollNo').value, 
@@ -378,7 +350,6 @@ export class StudentCrudComponent implements OnInit {
         alert("Student updated"); 
       },
       (err) => {
-        this.spinner.hide();
         console.log('HTTP Error', err);
         if (err.status == 401){
           alert("Session has expired, please login first")
@@ -398,12 +369,10 @@ export class StudentCrudComponent implements OnInit {
       }*/
       if(confirm("Are you sure you want to delete?")) {
         this.studentService.deleteStudent(id).subscribe((data)=>{
-          this.spinner.show()
           this.getStudents();
           alert("Student deleted");
         },
         (err) => {
-          this.spinner.hide();
           console.log('HTTP Error', err);
           if (err.status == 401){
             alert("Session has expired, please login first")
