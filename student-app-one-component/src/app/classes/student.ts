@@ -37,5 +37,6 @@ export interface StudentSearch{
     name:string,
     email:string,
     from:string,
-    to:string
+    to:string,
+    age:number
 }

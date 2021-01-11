@@ -75,7 +75,8 @@ export class StudentCrudComponent implements OnInit {
       name: ['', [Validators.pattern("^[a-zA-Z_ ]+$")]],
       from: [''],
       to: [''],
-      email: ['', [Validators.pattern("^[a-zA-Z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$")]]
+      email: ['', [Validators.pattern("^[a-zA-Z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$")]],
+      age:['']
     });
   }
 
@@ -266,7 +267,8 @@ export class StudentCrudComponent implements OnInit {
       name: this.studentSearchForm.get('name').value,
       email: this.studentSearchForm.get('email').value,
       from:this.studentSearchForm.get('from').value,
-      to:this.studentSearchForm.get('to').value
+      to:this.studentSearchForm.get('to').value,
+      age:this.studentSearchForm.get('age').value
     }
 
     //call search studnets service
