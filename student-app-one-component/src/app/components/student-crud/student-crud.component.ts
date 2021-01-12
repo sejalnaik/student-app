@@ -131,7 +131,7 @@ export class StudentCrudComponent implements OnInit {
     });
   }
 
-  //to check id add or update operation
+  //to check if add or update operation
   validate():void{
     if(this.studentForm.valid){
       if(this.addOrUpdateAction == "add"){
@@ -262,7 +262,6 @@ export class StudentCrudComponent implements OnInit {
 
   //add student
   addStudent():void{
-    let bookIssues:BookIssues[] = []
     this.studentAPI = {id:null, 
                       rollNo:this.studentForm.get('rollNo').value, 
                       name:this.studentForm.get('name').value, 
