@@ -21,6 +21,7 @@ import { EmptyToNullDirectveDirective } from './directives/empty-to-null-directv
 import { LoginComponent } from './components/login/login.component';
 import { LogoutComponent } from './components/logout/logout.component';
 import { NavbarComponent } from './components/navbar/navbar.component';
+import { NgSelectModule } from '@ng-select/ng-select';
 
 @NgModule({
   declarations: [
@@ -40,7 +41,8 @@ import { NavbarComponent } from './components/navbar/navbar.component';
     RouterModule.forRoot(RoutesClass.routes),
     ReactiveFormsModule,
     NgbModule,
-    NgxSpinnerModule
+    NgxSpinnerModule,
+    NgSelectModule
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   providers: [

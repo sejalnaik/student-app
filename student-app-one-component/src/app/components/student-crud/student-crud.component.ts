@@ -7,6 +7,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { CookieService } from 'ngx-cookie-service';
 import { BookService } from 'src/app/services/book.service';
 import { BookIssueService } from 'src/app/services/book-issue.service';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-student-crud',
@@ -30,6 +31,7 @@ export class StudentCrudComponent implements OnInit {
   diffOfAgeAndRollNo:number;
   diffOfAgeAndRecordCount:number;
   totalPenalty:number;
+  booksDropdown:string[] = [];
   
   constructor(
     private studentService:StudentService,
@@ -46,7 +48,20 @@ export class StudentCrudComponent implements OnInit {
     this.getBooks();
     this.createStudentForm();
     this.createStudentSearchForm();
-   }
+    this.populateBooksDropdown();
+  }
+
+  populateBooksDropdown():void{
+    this.bookService.getBooks().subscribe((data)=>{
+      for(let i = 0; i < data.body.length; i++){
+       this.booksDropdown = [...this.booksDropdown, data.body[i].name];
+      }
+    },
+    (err) => {
+      console.log('HTTP Error', err);
+      alert(err.error)
+    });
+  }
 
    //create student add/update form
   createStudentForm(){
@@ -69,7 +84,8 @@ export class StudentCrudComponent implements OnInit {
       from: [''],
       to: [''],
       email: [''],
-      age:['']
+      age:[null],
+      books:['']
     });
   }
 
@@ -246,9 +262,10 @@ export class StudentCrudComponent implements OnInit {
       email: this.studentSearchForm.get('email').value,
       from:this.studentSearchForm.get('from').value,
       to:this.studentSearchForm.get('to').value,
-      age:this.studentSearchForm.get('age').value
+      age:this.studentSearchForm.get('age').value,
+      books:this.studentSearchForm.get('books').value
     }
-
+    
     //call search studnets service
     //this.studentService.searchStudent(this.searchedStudent)
     this.studentService.searchStudent(this.searchedStudent).subscribe((data)=>{
@@ -258,6 +275,11 @@ export class StudentCrudComponent implements OnInit {
       console.log('HTTP Error', err);
       alert(err.error)
     });
+  }
+
+  resetSearchForm():void{
+    this.createStudentSearchForm();
+    this.getStudents();
   }
 
   //add student

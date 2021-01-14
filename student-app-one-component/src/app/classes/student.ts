@@ -38,7 +38,8 @@ export interface StudentSearch{
     email:string,
     from:string,
     to:string,
-    age:number
+    age:number,
+    books:string[];
 }
 
 export interface StudentId{

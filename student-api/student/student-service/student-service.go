@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"log"
+	"strings"
 
 	"github.com/jinzhu/gorm"
 	"github.com/sejalnaik/student-app/model"
@@ -222,25 +223,36 @@ func (s *StudentService) SearchStudents(paramsMap map[string][]string, students 
 	condition := ""
 	paramsMapLength := len(paramsMap)
 	for key, value := range paramsMap {
-		if key == "from" {
-			condition = condition + "dob >= " + "'" + value[0] + "'" + " "
+		if key == "books" {
+			books := strings.Split(paramsMap[key][0], ",")
+			for i := 0; i < len(books); i++ {
+				books[i] = "'" + books[i] + "'"
+			}
+			booksInString := strings.Join(books, ",")
+			condition = condition + "books.name in " + "(" + booksInString + ") "
+			condition = condition + " and book_issues.returned = 0 "
+		} else if key == "from" {
+			condition = condition + "students.dob >= " + "'" + value[0] + "'" + " "
 		} else if key == "to" {
-			condition = condition + "dob <= " + "'" + value[0] + "'" + " "
+			condition = condition + "students.dob <= " + "'" + value[0] + "'" + " "
 		} else if key == "age" {
-			condition = condition + "age >= " + "'" + value[0] + "'" + " "
+			condition = condition + "students.age >= " + "'" + value[0] + "'" + " "
 		} else {
-			condition = condition + key + " like " + "'%" + value[0] + "%' "
+			condition = condition + " students." + key + " like " + "'%" + value[0] + "%' "
 		}
 		paramsMapLength = paramsMapLength - 1
 		if paramsMapLength == 0 {
 			break
 		}
-		condition = condition + " and "
+		condition = condition + " or "
 	}
 
 	//give query processor for where
 	queryProcessors := []repository.QueryProcessor{}
+	queryProcessors = append(queryProcessors, repository.Model(students))
 	queryProcessors = append(queryProcessors, repository.Where(condition))
+	queryProcessors = append(queryProcessors, repository.Joins("students left JOIN book_issues ON book_issues.student_id = students.id left join books on book_issues.book_id = books.id"))
+	queryProcessors = append(queryProcessors, repository.Group("students.id"))
 
 	//call get repository method to get students
 	if err := s.repository.Get(uow, students, queryProcessors); err != nil {

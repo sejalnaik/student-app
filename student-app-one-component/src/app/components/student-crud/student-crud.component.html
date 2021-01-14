@@ -48,10 +48,26 @@
             </div>
         </div>
 
+        <div class="form-group row">
+            <label class="control-label col-sm-2">Books issued</label>
+            <div class="col-sm-4" style="text-align: left;">
+                <ng-select
+                    class="form-control"
+                    formControlName="books"
+                    [multiple]="true"
+                    [closeOnSelect]="false"
+                    [clearable]="true"
+                    [searchable]="true">
+                    <ng-option *ngFor="let book of booksDropdown" [value]="book">{{book}}</ng-option>
+                </ng-select>
+                
+            </div>
+        </div>
+
         <div class="form-group" style="text-align: left;margin-left: 10%;">
-            <button [disabled]="!studentSearchForm.valid" class="btn btn-primary" type="submit" (click) = "onSearchButtonClick()">SEARCH</button>
+            <button [disabled]="!studentSearchForm.valid || !studentSearchForm.dirty" class="btn btn-primary" type="submit" (click) = "onSearchButtonClick()">SEARCH</button>
             &nbsp;&nbsp;&nbsp; 
-            <button class="btn btn-primary" (click) = "studentSearchForm.reset()">RESET</button>
+            <button class="btn btn-primary" (click) = "resetSearchForm()">RESET</button>
 
         </div>
 

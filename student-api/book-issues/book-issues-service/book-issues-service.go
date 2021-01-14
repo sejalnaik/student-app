@@ -112,6 +112,7 @@ canBeAdded:
 	}
 
 	//call add repository method to add one book issue
+
 	if err := s.repository.Add(uow, bookIssue); err != nil {
 		uow.Complete()
 		return err
@@ -175,6 +176,11 @@ func (s *BookIssuesService) UpdateBookIssue(bookIssue *model.BookIssue, bookIssu
 		uow.Complete()
 		return err
 	}
+
+	/*if err := s.repository.Save(uow, bookIssue, queryProcessors); err != nil {
+		uow.Complete()
+		return err
+	}*/
 	uow.Commit()
 	return nil
 }

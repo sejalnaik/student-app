@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from "@angular/common/http";
+import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
 import { Observable } from 'rxjs';
 import { Student, StudentSearch } from "../classes/student";
 import { CookieService } from 'ngx-cookie-service';
@@ -72,21 +72,16 @@ export class StudentService {
   }
 
   searchStudent(studentSerach:StudentSearch):Observable<any>{
-    let url:string = this.baseUrl + "/search"
-    let paramsSet:string[] = []; 
-    
-    //create query params key value pairs
+    let url:string = this.baseUrl + "/search";
+    let params:HttpParams = new HttpParams();
+
     for (let key of Object.keys(studentSerach)) {
       let value = studentSerach[key];
-      if(value == ""){
-        continue
+      if((value != "") && (value != null)){
+        params = params.append(key, value)
       }
-      paramsSet.push(key + "=" + value);
-    }
-    if(paramsSet.length != 0){
-      url = url + "?" + paramsSet.join("&");
-    }
-    return this.httpClient.get<any>(url, {observe: "response"});
+    }    
+    return this.httpClient.get<any>(url, {params:params, observe: "response"});
   }
 }
 

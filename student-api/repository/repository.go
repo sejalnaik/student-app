@@ -18,6 +18,7 @@ type Repository interface {
 	Delete(uow *UnitOfWork, entity interface{}, queryProcessors []QueryProcessor) error
 	//BookSpecial(uow *UnitOfWork, entity interface{}) error
 	Scan(uow *UnitOfWork, out interface{}, entity interface{}, queryProcessors []QueryProcessor) error
+	Save(uow *UnitOfWork, entity interface{}, queryProcessors []QueryProcessor) error
 }
 
 type QueryProcessor func(db *gorm.DB, out interface{}) (*gorm.DB, error)
@@ -96,6 +97,31 @@ func (r *gormRepository) Add(uow *UnitOfWork, entity interface{}) error {
 		return err
 	}
 	if err := db.Debug().Create(entity).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *gormRepository) Save(uow *UnitOfWork, entity interface{}, queryProcessors []QueryProcessor) error {
+	db := uow.DB
+	defer func() {
+		if r := recover(); r != nil {
+			uow.Complete()
+		}
+	}()
+	if err := db.Error; err != nil {
+		return err
+	}
+	if queryProcessors != nil {
+		var err error
+		for _, queryProcessor := range queryProcessors {
+			db, err = queryProcessor(db, entity)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	if err := db.Debug().Save(entity).Error; err != nil {
 		return err
 	}
 	return nil
